@@ -1,0 +1,45 @@
+{
+  "name": "curriculum-app",
+  "version": "0.0.1",
+  "description": "A Quasar Project",
+  "productName": "CurriculumaApp",
+  "author": "vinieFortes <vinie4apps@gmail.com>",
+  "private": true,
+  "scripts": {
+    "test": "echo \"No test specified\" && exit 0",
+    "dev": "quasar dev",
+    "dev:android": "quasar dev -m android --ide",
+    "build:android": "quasar build -m android --ide"
+  },
+  "dependencies": {
+    "@quasar/extras": "^1.0.0",
+    "axios": "^0.21.1",
+    "core-js": "^3.6.5",
+    "country-state-city": "^3.1.2",
+    "i18n-iso-countries": "^7.5.0",
+    "jspdf": "^2.5.1",
+    "moment": "^2.29.4",
+    "quasar": "^2.6.0",
+    "vue": "^3.0.0",
+    "vue-router": "^4.0.0"
+  },
+  "devDependencies": {
+    "@quasar/app-webpack": "^3.0.0"
+  },
+  "browserslist": [
+    "last 10 Chrome versions",
+    "last 10 Firefox versions",
+    "last 4 Edge versions",
+    "last 7 Safari versions",
+    "last 8 Android versions",
+    "last 8 ChromeAndroid versions",
+    "last 8 FirefoxAndroid versions",
+    "last 10 iOS versions",
+    "last 5 Opera versions"
+  ],
+  "engines": {
+    "node": ">= 12.22.1",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
+  }
+}
