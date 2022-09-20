@@ -28,159 +28,161 @@
     </q-drawer>
 
     <q-page-container>
+      <q-form
+        @submit="onSubmit"
+      >
+        <q-list>
+          <q-expansion-item
+            expand-separator
+            icon="person"
+            class="column"
+            label="Dados pessoais">
 
-      <q-list>
-        <q-expansion-item
-          expand-separator
-          icon="person"
-          class="column"
-          label="Dados pessoais">
+              <q-input
+              v-model="nome"
+              class="q-pa-sm"
+              label="Nome Completo">
+              </q-input>
 
-          <q-input
-          v-model="nome"
-          class="q-pa-sm"
-          label="Nome Completo">
-          </q-input>
+              <q-input
+                v-model="dataNascimento"
+                class="q-pa-sm"
+                mask="##/##/####"
+                label="Data de Nascimento">
 
-          <q-input
-            v-model="dataNascimento"
-            class="q-pa-sm"
-            mask="##/##/####"
-            label="Data de Nascimento">
+                <template v-slot:append>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                      <q-date mask="DD/MM/YYYY" v-model="dataNascimento" @input="() => $refs.qDateProxy.hide()" ></q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
 
-            <template v-slot:append>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                  <q-date mask="DD/MM/YYYY" v-model="dataNascimento" @input="() => $refs.qDateProxy.hide()" ></q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
+              <q-select
+                v-model="sexo"
+                :options="optionsSexo"
+                class="q-pa-sm"
+                label="Sexo">
+              </q-select>
 
-          <q-select
-            v-model="sexo"
-            :options="optionsSexo"
-            class="q-pa-sm"
-            label="Sexo">
-          </q-select>
+              <q-select
+              v-model="estadoCivil"
+              :options="optionsEstadoCivil"
+              class="q-pa-sm"
+              label="Estado Civil">
+              </q-select>
 
-          <q-select
-          v-model="estadoCivil"
-          :options="optionsEstadoCivil"
-          class="q-pa-sm"
-          label="Estado Civil">
-          </q-select>
+              <q-select
+                v-model="paisNacionalidade"
+                :options="optionsPaisNacionalidade"
+                class="q-pa-sm"
+                label="País de Nacionalidade">
+                <template v-if="paisNacionalidade.flag" v-slot:prepend>
+                  <span style="font-size: 17px">{{ this.iso2FlagEmoji(paisNacionalidade.flag)}}</span>
+                </template>
+              </q-select>
 
-          <q-select
-            v-model="paisNacionalidade"
-            :options="optionsPaisNacionalidade"
-            class="q-pa-sm"
-            label="País de Nacionalidade">
-            <template v-if="paisNacionalidade.flag" v-slot:prepend>
-              <span style="font-size: 17px">{{ this.iso2FlagEmoji(paisNacionalidade.flag)}}</span>
-            </template>
-          </q-select>
+              <q-file
+                v-model="file"
+                label="Foto"
+                class="q-pa-sm"
+                accept=".jpg, .png, image/*"
+                @update:model-value="handleUpload()"
+              >
+                <template v-if="!file" v-slot:prepend>
+                  <q-icon name="photo_camera"></q-icon>
+                </template>
+                <template v-else v-slot:prepend>
+                  <q-icon name="photo_camera"></q-icon>
+                </template>
+              </q-file>
+                <q-img
+                  :src="imageUrl"
+                  spinner-color="white"
+                  style="height: 140px; max-width: 150px"
+                ></q-img>
+          </q-expansion-item>
 
-          <q-file
-            v-model="file"
-            label="Foto"
-            class="q-pa-sm"
-            accept=".jpg, .png, image/*"
-            @update:model-value="handleUpload()"
-          >
-            <template v-if="!file" v-slot:prepend>
-              <q-icon name="photo_camera"></q-icon>
-            </template>
-            <template v-else v-slot:prepend>
-              <q-icon name="photo_camera"></q-icon>
-            </template>
-          </q-file>
-            <q-img
-              :src="imageUrl"
-              spinner-color="white"
-              style="height: 140px; max-width: 150px"
-            ></q-img>
+          <q-expansion-item
+            expand-separator
+            icon="contact_page"
+            class="column"
+            label="Informações de contato">
 
-        </q-expansion-item>
+            <q-input
+              v-model="email"
+              class="q-pa-sm"
+              label="E-mail">
+            </q-input>
 
-        <q-expansion-item
-          expand-separator
-          icon="contact_page"
-          class="column"
-          label="Informações de contato">
+            <q-input
+              v-model="telefone"
+              class="q-pa-sm"
+              label="Telefone">
+            </q-input>
 
-          <q-input
-            v-model="email"
-            class="q-pa-sm"
-            label="E-mail">
-          </q-input>
+            <q-input
+              v-model="celular"
+              class="q-pa-sm"
+              label="Celular">
+            </q-input>
 
-          <q-input
-            v-model="telefone"
-            class="q-pa-sm"
-            label="Telefone">
-          </q-input>
+            <q-input
+              v-model="cep"
+              class="q-pa-sm"
+              label="CEP">
+            </q-input>
 
-          <q-input
-            v-model="celular"
-            class="q-pa-sm"
-            label="Celular">
-          </q-input>
+            <q-select
+              v-model="paisLocal"
+              :options="optionsPaisLocal"
+              class="q-pa-sm"
+              label="País"
+              @update:model-value="selectState">
+              <template v-if="paisLocal.value" v-slot:prepend>
+                <span style="font-size: 17px">{{ this.iso2FlagEmoji(paisLocal.value)}}</span>
+              </template>
+            </q-select>
 
-          <q-input
-            v-model="cep"
-            class="q-pa-sm"
-            label="CEP">
-          </q-input>
+            <q-select
+              v-model="estadoLocal"
+              :options="optionsEstadoLocal"
+              class="q-pa-sm"
+              :disable="!paisLocal.value"
+              label="Estado"
+              @update:model-value="selectCity">
+            </q-select>
 
-          <q-select
-            v-model="paisLocal"
-            :options="optionsPaisLocal"
-            class="q-pa-sm"
-            label="País"
-            @update:model-value="selectState">
-            <template v-if="paisLocal.value" v-slot:prepend>
-              <span style="font-size: 17px">{{ this.iso2FlagEmoji(paisLocal.value)}}</span>
-            </template>
-          </q-select>
+            <q-select
+              v-model="cidadeLocal"
+              :options="optionsCidadeLocal"
+              class="q-pa-sm"
+              :disable="!estadoLocal.value"
+              label="Cidade">
+            </q-select>
 
-          <q-select
-            v-model="estadoLocal"
-            :options="optionsEstadoLocal"
-            class="q-pa-sm"
-            :disable="!paisLocal.value"
-            label="Estado"
-            @update:model-value="selectCity">
-          </q-select>
+            <q-input
+              v-model="bairroLocal"
+              class="q-pa-sm"
+              label="Bairro">
+            </q-input>
 
-          <q-select
-            v-model="cidadeLocal"
-            :options="optionsCidadeLocal"
-            class="q-pa-sm"
-            :disable="!estadoLocal.value"
-            label="Cidade">
-          </q-select>
+            <q-input
+              v-model="endereco"
+              class="q-pa-sm"
+              label="Endereço">
+            </q-input>
 
-          <q-input
-            v-model="bairroLocal"
-            class="q-pa-sm"
-            label="Bairro">
-          </q-input>
+          </q-expansion-item>
+        </q-list>
 
-          <q-input
-            v-model="endereco"
-            class="q-pa-sm"
-            label="Endereço">
-          </q-input>
-
-        </q-expansion-item>
-      </q-list>
-
-      <div class="flex column">
-        <q-btn @click="geratePDF(nome, dataNascimento, estadoCivil, paisNacionalidade, email, telefone, celular, cep, file)">Gerar PDF</q-btn>
-        <button onclick="window.plugins.socialsharing.share('Here is your PDF file', 'Your PDF','file:///storage/emulated/0/Download/log.pdf','file:///storage/emulated/0/Download/log.pdf')">Share PDF</button>
-        <q-btn @click="openPDF">Open PDF</q-btn>
-      </div>
+        <div class="flex column">
+          <q-btn type="submit">Gerar PDF</q-btn>
+          <button v-if="$q.platform.is.cordova" onclick="window.plugins.socialsharing.share('Here is your PDF file', 'Your PDF','file:///storage/emulated/0/Download/log.pdf','file:///storage/emulated/0/Download/log.pdf')">Share PDF</button>
+          <q-btn v-if="$q.platform.is.cordova" @click="openPDF">Open PDF</q-btn>
+        </div>
+      </q-form>
     </q-page-container>
   </q-layout>
 </template>
@@ -192,6 +194,7 @@ import jsPDF from "jspdf";
 import listaPaises from "assets/countriesList.json"
 const countries = require ("i18n-iso-countries");
 import { Country, State, City }  from 'country-state-city';
+import { Platform } from 'quasar'
 
 
 export default defineComponent({
@@ -201,6 +204,10 @@ export default defineComponent({
     EssentialLink
   },
   methods: {
+
+    onSubmit () {
+      this.geratePDF();
+    },
 
     selectCity(){
       City.getCitiesOfState(countries.alpha3ToAlpha2(this.paisLocal.value), this.estadoLocal.value).forEach(cidade =>{
@@ -261,32 +268,32 @@ export default defineComponent({
       });
     },
 
-    async geratePDF(nome, data, civil, pais, email, telefone, celular, cep, foto) {
+    async geratePDF() {
       const doc = new jsPDF ("p", "mm", "a4");
 
       //TODO: definir uma configuração de fonte de texto
-      doc.setFont('ubuntu', 'normal')
-      if (nome.length > 30) {
+      doc.setFont('helvetica', 'normal')
+      if (this.nome.length > 30) {
         doc.setFontSize (20)
       } else {
         doc.setFontSize (25)
       }
 
-      doc.text (nome, 20, 22);
+      doc.text (this.nome, 20, 22);
 
       doc.setFontSize(12);
 
       if(this.sexo === 'Masculino'){
-        civil = civil.replace('(a)', '')
+        this.estadoCivil = this.estadoCivil.replace('(a)', '')
       }
       else{
-        civil = civil.replace('o(a)', 'a')
+        this.estadoCivil = this.estadoCivil.replace('o(a)', 'a')
       }
-      doc.text(this.calcularIdade(data).toString() + ' anos, ' + civil, 20, 30)
+      doc.text(this.calcularIdade(this.dataNascimento).toString() + ' anos, ' + this.estadoCivil, 20, 30)
 
       doc.setFontSize(6)
       doc.setTextColor(210, 215, 211)
-      doc.text('_______________________________________________________________________________________________________________________________________________________________', 20, 35, {maxWidth: 170})
+      doc.text('__________________________________________________________________________________________________________________________________________________', 20, 35, {maxWidth: 170})
 
       doc.setFontSize (23)
       doc.setTextColor(0, 0, 0)
@@ -294,60 +301,64 @@ export default defineComponent({
 
       doc.setFontSize(12);
 
-      doc.setFont('ubuntu', 'bold')
+      doc.setFont('helvetica', 'bold')
       doc.text('E-mail: ', 20, 58)
-      doc.setFont('ubuntu', 'normal')
-      doc.text(email, 35, 58)
+      doc.setFont('helvetica', 'normal')
+      doc.text(this.email, 35, 58)
 
-      doc.setFont('ubuntu', 'bold')
+      doc.setFont('helvetica', 'bold')
       doc.text('País de Nacionalidade: ', 20, 63)
-      doc.setFont('ubuntu', 'normal')
-      doc.text(pais.label, 62, 63)
+      doc.setFont('helvetica', 'normal')
+      doc.text(this.paisNacionalidade.label, 67, 63)
 
-      doc.setFont('ubuntu', 'bold')
+      doc.setFont('helvetica', 'bold')
       doc.text('Telefone: ', 20, 68)
-      doc.setFont('ubuntu', 'normal')
-      doc.text(this.telefone, 38, 68)
+      doc.setFont('helvetica', 'normal')
+      doc.text(this.telefone, 40, 68)
 
-      doc.setFont('ubuntu', 'bold')
+      doc.setFont('helvetica', 'bold')
       doc.text('Celular: ', 20, 73)
-      doc.setFont('ubuntu', 'normal')
-      doc.text(this.celular, 36, 73)
+      doc.setFont('helvetica', 'normal')
+      doc.text(this.celular, 38, 73)
 
-      doc.setFont('ubuntu', 'bold')
+      doc.setFont('helvetica', 'bold')
       doc.text('Endereço: ', 20, 78)
-      doc.setFont('ubuntu', 'normal')
-      doc.text(`${this.endereco} ${this.bairroLocal} ${this.cep} ${this.cidadeLocal} ${this.estadoLocal.label} ${this.paisLocal.label}`, 40, 78,{maxWidth: 170})
+      doc.setFont('helvetica', 'normal')
+      doc.text(`${this.endereco} ${this.bairroLocal} ${this.cep} ${this.cidadeLocal} ${this.estadoLocal.label ? this.estadoLocal.label : ''} ${this.paisLocal.label ? this.paisLocal.label : ''}`, 40, 78,{maxWidth: 170})
 
 
-      if(foto){
-        await this.getBase64 (foto).then (data => {
+      if(this.file){
+        await this.getBase64 (this.file).then (data => {
           doc.addImage (data.toString (), 'PNG', 15, 50, 50, 50)
         });
       }
 
       const pdfOutput = doc.output ("arraybuffer");
 
-      window.resolveLocalFileSystemURL ('file:///storage/emulated/0/Download', successCallback, errorCallback)
+      if(!Platform.is.cordova){
+        doc.save('teste.pdf');
+      }else {
+        window.resolveLocalFileSystemURL ('file:///storage/emulated/0/Download', successCallback, errorCallback)
 
-      function successCallback(fs) {
-        fs.getFile ('log.pdf', {create: true}, function (fileEntry) {
+        function successCallback(fs) {
+          fs.getFile ('log.pdf', {create: true}, function (fileEntry) {
 
-          fileEntry.createWriter (function (fileWriter) {
-            fileWriter.onwriteend = function (e) {
-              alert ('Write completed.' + fs.name);
-            };
+            fileEntry.createWriter (function (fileWriter) {
+              fileWriter.onwriteend = function (e) {
+                alert ('Write completed.' + fs.name);
+              };
 
-            fileWriter.onerror = function (e) {
-              alert ('Write failed: ' + e.toString ());
-            };
-            fileWriter.write (pdfOutput);
+              fileWriter.onerror = function (e) {
+                alert ('Write failed: ' + e.toString ());
+              };
+              fileWriter.write (pdfOutput);
+            }, errorCallback);
           }, errorCallback);
-        }, errorCallback);
-      }
+        }
 
-      function errorCallback(error) {
-        alert ("ERROR: " + error.code)
+        function errorCallback(error) {
+          alert ("ERROR: " + error.code)
+        }
       }
     },
   },
