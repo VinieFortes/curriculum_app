@@ -197,6 +197,12 @@
               label="Nível de escolaridade">
             </q-select>
 
+            <Curso/>
+
+            <div class="q-ma-md flex column items-center">
+              <q-btn icon="school" label="Adicionar Curso"></q-btn>
+            </div>
+
           </q-expansion-item>
 
         </q-list>
@@ -219,12 +225,14 @@ import listaPaises from "assets/countriesList.json"
 const countries = require ("i18n-iso-countries");
 import { Country, State, City }  from 'country-state-city';
 import { Platform } from 'quasar'
+import Curso from "components/Curso";
 
 
 export default defineComponent({
   name: 'MainLayout',
 
   components: {
+    Curso,
     EssentialLink
   },
   methods: {
@@ -434,7 +442,7 @@ export default defineComponent({
     const file = null;
     const leftDrawerOpen = null;
     const toggleLeftDrawer = null;
-    const nivelEscolaridade = '';
+    const nivelEscolaridade = 'Formação Superior Incompleta';
     const optionsNivelEscolaridade = ['Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 'Ensino Médio Completo', 'Formação Superior Incompleta', 'Formação Superior Completa', 'Pós-graduação no nível Especialização', 'Pós-graduação no nível Mestrado', 'Pós-graduação no nível Doutorado'];
     let imageUrl = '';
     return{
