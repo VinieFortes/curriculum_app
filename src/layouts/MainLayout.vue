@@ -182,6 +182,23 @@
             </q-input>
 
           </q-expansion-item>
+
+          <q-expansion-item
+            expand-separator
+            icon="school"
+            class="column"
+            label="Formação">
+
+            <q-select
+              v-model="nivelEscolaridade"
+              :options="optionsNivelEscolaridade"
+              class="q-pa-sm"
+              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+              label="Nível de escolaridade">
+            </q-select>
+
+          </q-expansion-item>
+
         </q-list>
 
         <div class="flex column">
@@ -314,30 +331,40 @@ export default defineComponent({
       doc.setFontSize(12);
 
       doc.setFont('helvetica', 'bold')
-      doc.text('E-mail: ', 20, 58)
+      doc.text('E-mail: ', 22, 58)
       doc.setFont('helvetica', 'normal')
-      doc.text(this.email, 35, 58)
+      doc.text(this.email, 37, 58)
 
       doc.setFont('helvetica', 'bold')
-      doc.text('País de Nacionalidade: ', 20, 63)
+      doc.text('País de Nacionalidade: ', 22, 63)
       doc.setFont('helvetica', 'normal')
-      doc.text(this.paisNacionalidade.label, 67, 63)
+      doc.text(this.paisNacionalidade.label, 69, 63)
 
       doc.setFont('helvetica', 'bold')
-      doc.text('Telefone: ', 20, 68)
+      doc.text('Telefone: ', 22, 68)
       doc.setFont('helvetica', 'normal')
-      doc.text(this.telefone, 40, 68)
+      doc.text(this.telefone, 42, 68)
 
       doc.setFont('helvetica', 'bold')
-      doc.text('Celular: ', 20, 73)
+      doc.text('Celular: ', 22, 73)
       doc.setFont('helvetica', 'normal')
-      doc.text(this.celular, 38, 73)
+      doc.text(this.celular, 40, 73)
 
       doc.setFont('helvetica', 'bold')
-      doc.text('Endereço: ', 20, 78)
+      doc.text('Endereço: ', 22, 78)
       doc.setFont('helvetica', 'normal')
-      doc.text(`${this.endereco} ${this.bairroLocal} ${this.cep} ${this.cidadeLocal} ${this.estadoLocal.label ? this.estadoLocal.label : ''} ${this.paisLocal.label ? this.paisLocal.label : ''}`, 40, 78,{maxWidth: 170})
+      doc.text(`${this.endereco} ${this.bairroLocal} ${this.cep} ${this.cidadeLocal} ${this.estadoLocal.label ? this.estadoLocal.label : ''} ${this.paisLocal.label ? this.paisLocal.label : ''}`, 42, 78,{maxWidth: 170})
 
+      doc.setFontSize (23)
+      doc.setTextColor(0, 0, 0)
+      doc.text('Formação', 20,93)
+
+      doc.setFontSize(12);
+
+      doc.setFont('helvetica', 'bold')
+      doc.text('Escolaridade: ', 22, 101)
+      doc.setFont('helvetica', 'normal')
+      doc.text(this.nivelEscolaridade, 51, 101)
 
       if(this.file){
         await this.getBase64 (this.file).then (data => {
@@ -407,6 +434,8 @@ export default defineComponent({
     const file = null;
     const leftDrawerOpen = null;
     const toggleLeftDrawer = null;
+    const nivelEscolaridade = '';
+    const optionsNivelEscolaridade = ['Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 'Ensino Médio Completo', 'Formação Superior Incompleta', 'Formação Superior Completa', 'Pós-graduação no nível Especialização', 'Pós-graduação no nível Mestrado', 'Pós-graduação no nível Doutorado'];
     let imageUrl = '';
     return{
       nome: nome,
@@ -429,6 +458,8 @@ export default defineComponent({
       optionsCidadeLocal: optionsCidadeLocal,
       bairroLocal: bairroLocal,
       endereco: endereco,
+      nivelEscolaridade: nivelEscolaridade,
+      optionsNivelEscolaridade: optionsNivelEscolaridade,
       file: file,
       leftDrawerOpen: leftDrawerOpen,
       toggleLeftDrawer: toggleLeftDrawer,
