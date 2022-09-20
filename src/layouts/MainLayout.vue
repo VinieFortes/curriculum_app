@@ -41,6 +41,7 @@
               <q-input
               v-model="nome"
               class="q-pa-sm"
+              :rules="[ val => val.length > 0|| 'Nome é obrigatório !' ]"
               label="Nome Completo">
               </q-input>
 
@@ -63,6 +64,7 @@
                 v-model="sexo"
                 :options="optionsSexo"
                 class="q-pa-sm"
+                :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
                 label="Sexo">
               </q-select>
 
@@ -70,6 +72,7 @@
               v-model="estadoCivil"
               :options="optionsEstadoCivil"
               class="q-pa-sm"
+              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
               label="Estado Civil">
               </q-select>
 
@@ -113,24 +116,28 @@
             <q-input
               v-model="email"
               class="q-pa-sm"
+              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
               label="E-mail">
             </q-input>
 
             <q-input
               v-model="telefone"
               class="q-pa-sm"
+              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
               label="Telefone">
             </q-input>
 
             <q-input
               v-model="celular"
               class="q-pa-sm"
+              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
               label="Celular">
             </q-input>
 
             <q-input
               v-model="cep"
               class="q-pa-sm"
+              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
               label="CEP">
             </q-input>
 
@@ -289,7 +296,12 @@ export default defineComponent({
       else{
         this.estadoCivil = this.estadoCivil.replace('o(a)', 'a')
       }
-      doc.text(this.calcularIdade(this.dataNascimento).toString() + ' anos, ' + this.estadoCivil, 20, 30)
+
+      if(this.dataNascimento && this.estadoCivil){
+        doc.text(this.calcularIdade(this.dataNascimento).toString() + ' anos, ' + this.estadoCivil, 20, 30)
+      } else if (!this.dataNascimento && this.estadoCivil){
+        doc.text(this.estadoCivil, 20, 30)
+      }
 
       doc.setFontSize(6)
       doc.setTextColor(210, 215, 211)
