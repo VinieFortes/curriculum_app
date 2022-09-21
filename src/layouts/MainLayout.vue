@@ -197,10 +197,25 @@
               label="Nível de escolaridade">
             </q-select>
 
-            <Curso/>
+            <div class="flex q-pa-sm items-center justify-center bg-red-1">
+              <span style="font-weight: bold">Nenhum curso adicionado !</span>
+            </div>
+
+            <q-list v-if="!showEditCursoModal.view || cursosObjs.length > 1" separator bordered class="q-ma-sm">
+              <q-item v-show="showEditCursoModal.index !== index || showEditCursoModal.view === false" v-for="(curso, index) in cursosObjs" class="flex row justify-between">
+                <div class="flex column">
+                  <span style="font-weight: bold">{{ curso.tipoCurso }}</span>
+                  <span>{{ curso.nomeCurso }}, {{ curso.instituicao }}</span>
+                  <span>({{ curso.dataCurso }}), {{ curso.situacaoCurso }}</span>
+                </div>
+                <q-btn @click="editCurso(index)" :disable="showEditCursoModal.view" flat size="12px" label="Editar Curso" icon="edit"/>
+              </q-item>
+            </q-list>
+
+            <Curso v-if="showEditCursoModal.view" :curso-obj="cursosObjs[showEditCursoModal.index]" @salvar="saveCurso" @remover="removeCurso"/>
 
             <div class="q-ma-md flex column items-center">
-              <q-btn icon="school" label="Adicionar Curso"></q-btn>
+              <q-btn @click="addCurso" :disable="showEditCursoModal.view" icon="school" label="Adicionar Curso"></q-btn>
             </div>
 
           </q-expansion-item>
@@ -219,7 +234,6 @@
 
 <script>
 import { defineComponent, ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
 import jsPDF from "jspdf";
 import listaPaises from "assets/countriesList.json"
 const countries = require ("i18n-iso-countries");
@@ -232,10 +246,29 @@ export default defineComponent({
   name: 'MainLayout',
 
   components: {
-    Curso,
-    EssentialLink
+    Curso
   },
   methods: {
+
+    removeCurso(args){
+      this.cursosObjs = this.cursosObjs.filter(function (item){return item !== args})
+      this.showEditCursoModal.view = false;
+    },
+
+    saveCurso(args){
+      this.showEditCursoModal.view = false;
+    },
+
+    addCurso(){
+      this.cursosObjs.push({nomeCurso: 'Ciência da Computação', tipoCurso: 'Graduação', instituicao: 'UFJF - Universidade Federal de Juiz de Fora', situacaoCurso: 'Cursando', dataCurso: '01/2024'});
+      this.showEditCursoModal.view = true;
+      this.showEditCursoModal.index = this.cursosObjs.length - 1;
+    },
+
+    editCurso(index){
+      this.showEditCursoModal.view = true;
+      this.showEditCursoModal.index = index;
+    },
 
     onSubmit () {
       this.geratePDF();
@@ -442,8 +475,10 @@ export default defineComponent({
     const file = null;
     const leftDrawerOpen = null;
     const toggleLeftDrawer = null;
+    const showEditCursoModal = {view: false, index: null};
     const nivelEscolaridade = 'Formação Superior Incompleta';
     const optionsNivelEscolaridade = ['Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 'Ensino Médio Completo', 'Formação Superior Incompleta', 'Formação Superior Completa', 'Pós-graduação no nível Especialização', 'Pós-graduação no nível Mestrado', 'Pós-graduação no nível Doutorado'];
+    let cursosObjs = [];
     let imageUrl = '';
     return{
       nome: nome,
@@ -468,7 +503,9 @@ export default defineComponent({
       endereco: endereco,
       nivelEscolaridade: nivelEscolaridade,
       optionsNivelEscolaridade: optionsNivelEscolaridade,
+      cursosObjs: cursosObjs,
       file: file,
+      showEditCursoModal: showEditCursoModal,
       leftDrawerOpen: leftDrawerOpen,
       toggleLeftDrawer: toggleLeftDrawer,
       imageUrl: imageUrl,
