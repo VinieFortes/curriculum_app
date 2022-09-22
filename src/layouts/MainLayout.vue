@@ -197,7 +197,7 @@
               label="Nível de escolaridade">
             </q-select>
 
-            <div class="flex q-pa-sm items-center justify-center bg-red-1">
+            <div v-if="cursosObjs.length === 0" class="flex q-pa-sm items-center justify-center bg-red-1">
               <span style="font-weight: bold">Nenhum curso adicionado !</span>
             </div>
 
@@ -248,8 +248,8 @@ export default defineComponent({
   components: {
     Curso
   },
-  methods: {
 
+  methods: {
     removeCurso(args){
       this.cursosObjs = this.cursosObjs.filter(function (item){return item !== args})
       this.showEditCursoModal.view = false;
@@ -336,7 +336,14 @@ export default defineComponent({
     async geratePDF() {
       const doc = new jsPDF ("p", "mm", "a4");
 
-      //TODO: definir uma configuração de fonte de texto
+      this.$watch('lastY', (newY, oldY)=> {
+        console.log(newY, oldY)
+        if(newY >= 248){
+          this.lastY = 22;
+          doc.addPage('a4', 'p');
+        }
+      }, {immediate: true, flush: 'sync'})
+
       doc.setFont('helvetica', 'normal')
       if (this.nome.length > 30) {
         doc.setFontSize (20)
@@ -344,7 +351,7 @@ export default defineComponent({
         doc.setFontSize (25)
       }
 
-      doc.text (this.nome, 20, 22);
+      doc.text (this.nome, 20, this.lastY = 22);
 
       doc.setFontSize(12);
 
@@ -356,56 +363,83 @@ export default defineComponent({
       }
 
       if(this.dataNascimento && this.estadoCivil){
-        doc.text(this.calcularIdade(this.dataNascimento).toString() + ' anos, ' + this.estadoCivil, 20, 30)
+        this.lastY = this.lastY + 8;
+        doc.text(this.calcularIdade(this.dataNascimento).toString() + ' anos, ' + this.estadoCivil, 20, this.lastY)
       } else if (!this.dataNascimento && this.estadoCivil){
-        doc.text(this.estadoCivil, 20, 30)
+        this.lastY = this.lastY + 8
+        doc.text(this.estadoCivil, 20, this.lastY)
       }
 
       doc.setFontSize(6)
       doc.setTextColor(210, 215, 211)
-      doc.text('__________________________________________________________________________________________________________________________________________________', 20, 35, {maxWidth: 170})
+      this.lastY = this.lastY + 5;
+      doc.text('__________________________________________________________________________________________________________________________________________________', 20, this.lastY, {maxWidth: 170})
 
       doc.setFontSize (23)
       doc.setTextColor(0, 0, 0)
-      doc.text('Dados pessoais', 20,50)
+      this.lastY = this.lastY + 15;
+      doc.text('Dados pessoais', 20, this.lastY)
 
       doc.setFontSize(12);
 
       doc.setFont('helvetica', 'bold')
-      doc.text('E-mail: ', 22, 58)
+      this.lastY = this.lastY + 8;
+      doc.text('E-mail: ', 22, this.lastY)
       doc.setFont('helvetica', 'normal')
-      doc.text(this.email, 37, 58)
+      doc.text(this.email, 37, this.lastY)
 
       doc.setFont('helvetica', 'bold')
-      doc.text('País de Nacionalidade: ', 22, 63)
+      this.lastY = this.lastY + 5;
+      doc.text('País de Nacionalidade: ', 22, this.lastY)
       doc.setFont('helvetica', 'normal')
-      doc.text(this.paisNacionalidade.label, 69, 63)
+      doc.text(this.paisNacionalidade.label, 69, this.lastY)
 
       doc.setFont('helvetica', 'bold')
-      doc.text('Telefone: ', 22, 68)
+      this.lastY = this.lastY + 5;
+      doc.text('Telefone: ', 22, this.lastY)
       doc.setFont('helvetica', 'normal')
-      doc.text(this.telefone, 42, 68)
+      doc.text(this.telefone, 42, this.lastY)
 
       doc.setFont('helvetica', 'bold')
-      doc.text('Celular: ', 22, 73)
+      this.lastY = this.lastY + 5;
+      doc.text('Celular: ', 22, this.lastY)
       doc.setFont('helvetica', 'normal')
-      doc.text(this.celular, 40, 73)
+      doc.text(this.celular, 40, this.lastY)
 
       doc.setFont('helvetica', 'bold')
-      doc.text('Endereço: ', 22, 78)
+      this.lastY = this.lastY + 5;
+      doc.text('Endereço: ', 22, this.lastY)
       doc.setFont('helvetica', 'normal')
-      doc.text(`${this.endereco} ${this.bairroLocal} ${this.cep} ${this.cidadeLocal} ${this.estadoLocal.label ? this.estadoLocal.label : ''} ${this.paisLocal.label ? this.paisLocal.label : ''}`, 42, 78,{maxWidth: 170})
+      doc.text(`${this.endereco} ${this.bairroLocal} ${this.cep} ${this.cidadeLocal} ${this.estadoLocal.label ? this.estadoLocal.label : ''} ${this.paisLocal.label ? this.paisLocal.label : ''}`, 42, this.lastY,{maxWidth: 170})
 
       doc.setFontSize (23)
       doc.setTextColor(0, 0, 0)
-      doc.text('Formação', 20,93)
+      this.lastY = this.lastY + 15;
+      doc.text('Formação', 20, this.lastY)
 
       doc.setFontSize(12);
 
       doc.setFont('helvetica', 'bold')
-      doc.text('Escolaridade: ', 22, 101)
+      this.lastY = this.lastY + 8;
+      doc.text('Escolaridade: ', 22, this.lastY)
       doc.setFont('helvetica', 'normal')
-      doc.text(this.nivelEscolaridade, 51, 101)
+      doc.text(this.nivelEscolaridade, 51, this.lastY)
+
+      if(this.cursosObjs.length > 0){
+        await this.cursosObjs.forEach((curso, index) =>{
+          doc.setFont('helvetica', 'bold')
+          this.lastY = this.lastY + 10;
+          doc.text(curso.tipoCurso, 22, this.lastY);
+          doc.setFont('helvetica', 'normal')
+          this.lastY = this.lastY + 5;
+          doc.text(`${curso.nomeCurso}, ${curso.instituicao}\n(${curso.dataCurso}) - ${curso.situacaoCurso}`, 22, this.lastY);
+          this.lastY = this.lastY + 5;
+        })
+      }
+
+      doc.setFontSize (23)
+      doc.setTextColor(0, 0, 0)
+      doc.text('Histórico profissional', 20,this.lastY = this.lastY + 20)
 
       if(this.file){
         await this.getBase64 (this.file).then (data => {
@@ -509,6 +543,7 @@ export default defineComponent({
       leftDrawerOpen: leftDrawerOpen,
       toggleLeftDrawer: toggleLeftDrawer,
       imageUrl: imageUrl,
+      lastY: 0
     }
   }
 
