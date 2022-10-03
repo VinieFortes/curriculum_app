@@ -220,6 +220,35 @@
 
           </q-expansion-item>
 
+          <q-expansion-item
+            expand-separator
+            icon="engineering"
+            class="column"
+            label="Histórico Profissional">
+
+            <div v-if="empresasObj.length === 0" class="flex q-pa-sm items-center justify-center bg-red-1">
+              <span style="font-weight: bold">Nenhuma empresa adicionada !</span>
+            </div>
+
+            <q-list v-if="!showEditEmpresaModal.view || empresasObj.length > 1" separator bordered class="q-ma-sm">
+              <q-item v-show="showEditEmpresaModal.index !== index || showEditEmpresaModal.view === false" v-for="(empresa, index) in empresasObj" class="flex row justify-between">
+                <div class="flex column">
+                  <span style="font-weight: bold">{{ empresa.cargo }}</span>
+                  <span>{{ empresa.nomeEmpresa }}, {{ empresa.descricao }}</span>
+                  <span>{{ empresa.dataInicio }} - {{ empresa.dataFim === '' ? 'Até o momento' : empresa.dataFim }}</span>
+                </div>
+                <q-btn @click="editEmpresa(index)" :disable="showEditEmpresaModal.view" flat size="12px" label="Editar Curso" icon="edit"/>
+              </q-item>
+            </q-list>
+
+            <Empresa v-if="showEditEmpresaModal.view" :empresa-obj="empresasObj[showEditEmpresaModal.index]" @salvar="saveEmpresa" @remover="removeEmpresa"/>
+
+            <div class="q-ma-md flex column items-center">
+              <q-btn @click="addEmpresa" :disable="showEditEmpresaModal.view" icon="business" label="Adicionar Empresa"></q-btn>
+            </div>
+
+          </q-expansion-item>
+
         </q-list>
 
         <div class="flex column">
@@ -240,16 +269,39 @@ const countries = require ("i18n-iso-countries");
 import { Country, State, City }  from 'country-state-city';
 import { Platform } from 'quasar'
 import Curso from "components/Curso";
+import Empresa from "components/Empresa";
 
 
 export default defineComponent({
   name: 'MainLayout',
 
   components: {
+    Empresa,
     Curso
   },
 
   methods: {
+
+    editEmpresa(index){
+      this.showEditEmpresaModal.view = true;
+      this.showEditEmpresaModal.index = index;
+    },
+
+    removeEmpresa(args){
+      this.empresasObj = this.empresasObj.filter(function (item){return item !== args})
+      this.showEditEmpresaModal.view = false;
+    },
+
+    saveEmpresa(args){
+      this.showEditEmpresaModal.view = false;
+    },
+
+    addEmpresa(){
+      this.empresasObj.push({nomeEmpresa: 'studioApp', cargo: 'Desenvolvedor Front-End', descricao: 'Trabalho com Vue.js', dataInicio: '12/2021', dataFim: ''});
+      this.showEditEmpresaModal.view = true;
+      this.showEditEmpresaModal.index = this.empresasObj.length - 1;
+    },
+
     removeCurso(args){
       this.cursosObjs = this.cursosObjs.filter(function (item){return item !== args})
       this.showEditCursoModal.view = false;
@@ -441,6 +493,21 @@ export default defineComponent({
       doc.setTextColor(0, 0, 0)
       doc.text('Histórico profissional', 20,this.lastY = this.lastY + 20)
 
+      doc.setFontSize(12);
+
+      if(this.empresasObj.length > 0){
+        await this.empresasObj.forEach((empresa, index) =>{
+          doc.setFont('helvetica', 'bold')
+          this.lastY = this.lastY + 10;
+          doc.text(empresa.nomeEmpresa, 22, this.lastY);
+          doc.setFont('helvetica', 'normal')
+          this.lastY = this.lastY + 5;
+          doc.text(`${empresa.cargo}, ${empresa.descricao}\n${empresa.dataInicio} - ${empresa.dataFim === '' ? 'Até o momento' : empresa.dataFim}`, 22, this.lastY);
+          this.lastY = this.lastY + 5;
+        })
+      }
+
+
       if(this.file){
         await this.getBase64 (this.file).then (data => {
           doc.addImage (data.toString (), 'PNG', 15, 50, 50, 50)
@@ -510,9 +577,11 @@ export default defineComponent({
     const leftDrawerOpen = null;
     const toggleLeftDrawer = null;
     const showEditCursoModal = {view: false, index: null};
+    const showEditEmpresaModal = {view: false, index: null};
     const nivelEscolaridade = 'Formação Superior Incompleta';
     const optionsNivelEscolaridade = ['Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 'Ensino Médio Completo', 'Formação Superior Incompleta', 'Formação Superior Completa', 'Pós-graduação no nível Especialização', 'Pós-graduação no nível Mestrado', 'Pós-graduação no nível Doutorado'];
     let cursosObjs = [];
+    let empresasObj = [];
     let imageUrl = '';
     return{
       nome: nome,
@@ -538,8 +607,10 @@ export default defineComponent({
       nivelEscolaridade: nivelEscolaridade,
       optionsNivelEscolaridade: optionsNivelEscolaridade,
       cursosObjs: cursosObjs,
+      empresasObj: empresasObj,
       file: file,
       showEditCursoModal: showEditCursoModal,
+      showEditEmpresaModal: showEditEmpresaModal,
       leftDrawerOpen: leftDrawerOpen,
       toggleLeftDrawer: toggleLeftDrawer,
       imageUrl: imageUrl,
