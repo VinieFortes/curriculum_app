@@ -249,6 +249,50 @@
 
           </q-expansion-item>
 
+          <q-expansion-item
+            expand-separator
+            icon="checklist"
+            class="column"
+            label="Objetivos">
+
+            <q-input
+              v-model="cargo_desejado"
+              class="q-pa-sm"
+              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+              label="Cargo desejado">
+            </q-input>
+
+            <q-input
+              v-model="areaInteresse"
+              class="q-pa-sm"
+              label="Área de interesse">
+            </q-input>
+
+            <q-field
+              v-model="pretensaoSalarial"
+              label="Pretensão salarial"
+              class="q-pa-sm"
+              prefix="R$"
+            >
+              <template v-slot:control="{ id, floatingLabel, modelValue, emitValue }">
+                <money3-component :id="id" class="q-field__input" :model-value="modelValue" @update:model-value="emitValue" v-bind="moneyFormatForDirective" v-show="floatingLabel" />
+              </template>
+            </q-field>
+
+            <span class="q-pa-sm">Aceitaria viajar pela empresa?</span>
+            <div class="q-pa-sm">
+              <q-radio v-model="viajarEmpresa" label="Sim" val="sim"/>
+              <q-radio v-model="viajarEmpresa" label="Não" val="nao"/>
+            </div>
+
+            <span class="q-pa-sm">Consideraria trabalhar em outra cidade?</span>
+            <div class="q-pa-sm">
+              <q-radio v-model="trabalharOutraCidadeEmpresa" label="Sim" val="sim"/>
+              <q-radio v-model="trabalharOutraCidadeEmpresa" label="Não" val="nao"/>
+            </div>
+
+          </q-expansion-item>
+
         </q-list>
 
         <div class="flex column">
@@ -270,12 +314,14 @@ import { Country, State, City }  from 'country-state-city';
 import { Platform } from 'quasar'
 import Curso from "components/Curso";
 import Empresa from "components/Empresa";
+import {Money3Component} from "v-money3";
 
 
 export default defineComponent({
   name: 'MainLayout',
 
   components: {
+    Money3Component,
     Empresa,
     Curso
   },
@@ -491,7 +537,8 @@ export default defineComponent({
 
       doc.setFontSize (23)
       doc.setTextColor(0, 0, 0)
-      doc.text('Histórico profissional', 20,this.lastY = this.lastY + 20)
+      this.lastY = this.lastY + 15;
+      doc.text('Histórico profissional', 20,this.lastY)
 
       doc.setFontSize(12);
 
@@ -506,6 +553,32 @@ export default defineComponent({
           this.lastY = this.lastY + 5;
         })
       }
+
+      doc.setFontSize (23)
+      doc.setTextColor(0, 0, 0)
+      this.lastY = this.lastY + 15;
+      doc.text('Objetivos', 20,this.lastY)
+
+      doc.setFontSize(12);
+
+      doc.setFont('helvetica', 'bold')
+      this.lastY = this.lastY + 8;
+      doc.text('Cargo desejado: ', 22, this.lastY)
+      doc.setFont('helvetica', 'normal')
+      doc.text(this.cargo_desejado, 57, this.lastY)
+
+      doc.setFont('helvetica', 'bold')
+      this.lastY = this.lastY + 5;
+      doc.text('Área de interesse: ', 22, this.lastY)
+      doc.setFont('helvetica', 'normal')
+      doc.text(this.areaInteresse, 60, this.lastY)
+
+      doc.setFont('helvetica', 'bold')
+      this.lastY = this.lastY + 5;
+      doc.text('Pretensão salarial: ', 22, this.lastY)
+      doc.setFont('helvetica', 'normal')
+      doc.text('R$ ' + this.pretensaoSalarial, 62, this.lastY)
+
 
 
       if(this.file){
@@ -582,6 +655,9 @@ export default defineComponent({
     const optionsNivelEscolaridade = ['Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 'Ensino Médio Completo', 'Formação Superior Incompleta', 'Formação Superior Completa', 'Pós-graduação no nível Especialização', 'Pós-graduação no nível Mestrado', 'Pós-graduação no nível Doutorado'];
     let cursosObjs = [];
     let empresasObj = [];
+    const cargoDesejado = '';
+    const areaInteresse = '';
+    const pretensaoSalarial = '';
     let imageUrl = '';
     return{
       nome: nome,
@@ -614,7 +690,18 @@ export default defineComponent({
       leftDrawerOpen: leftDrawerOpen,
       toggleLeftDrawer: toggleLeftDrawer,
       imageUrl: imageUrl,
-      lastY: 0
+      cargo_desejado: cargoDesejado,
+      areaInteresse: areaInteresse,
+      pretensaoSalarial: pretensaoSalarial,
+      viajarEmpresa: 'nao',
+      trabalharOutraCidadeEmpresa: 'nao',
+      lastY: 0,
+      moneyFormatForDirective: {
+        decimal: ',',
+        thousands: '.',
+        disableNegative: true,
+        precision: 2,
+      }
     }
   }
 
