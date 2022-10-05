@@ -22,6 +22,7 @@
           v-model="empresaObj.descricao"
           class="q-pa-sm"
           type="textarea"
+          autogrow
           :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
           label="Resumo profissional">
         </q-input>

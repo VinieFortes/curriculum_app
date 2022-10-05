@@ -111,7 +111,7 @@
             expand-separator
             icon="contact_page"
             class="column"
-            label="Informações de contato">
+            label="Informações de Contato">
 
             <q-input
               v-model="email"
@@ -290,6 +290,21 @@
               <q-radio v-model="trabalharOutraCidadeEmpresa" label="Sim" val="sim"/>
               <q-radio v-model="trabalharOutraCidadeEmpresa" label="Não" val="nao"/>
             </div>
+
+          </q-expansion-item>
+
+          <q-expansion-item
+            expand-separator
+            icon="post_add"
+            class="column"
+            label="Informações Complementares">
+
+            <q-input
+              v-model="informacoesComplementares"
+              class="q-pa-sm"
+              type="textarea"
+              label="Informações complementares">
+            </q-input>
 
           </q-expansion-item>
 
@@ -579,7 +594,16 @@ export default defineComponent({
       doc.setFont('helvetica', 'normal')
       doc.text('R$ ' + this.pretensaoSalarial, 62, this.lastY)
 
+      doc.setFontSize (23)
+      doc.setTextColor(0, 0, 0)
+      this.lastY = this.lastY + 15;
+      doc.text('Informações complementares', 20,this.lastY)
 
+      doc.setFontSize(12);
+
+      this.lastY = this.lastY + 8;
+      doc.setFont('helvetica', 'normal')
+      doc.text(this.informacoesComplementares, 22, this.lastY)
 
       if(this.file){
         await this.getBase64 (this.file).then (data => {
@@ -655,9 +679,12 @@ export default defineComponent({
     const optionsNivelEscolaridade = ['Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 'Ensino Médio Completo', 'Formação Superior Incompleta', 'Formação Superior Completa', 'Pós-graduação no nível Especialização', 'Pós-graduação no nível Mestrado', 'Pós-graduação no nível Doutorado'];
     let cursosObjs = [];
     let empresasObj = [];
-    const cargoDesejado = '';
-    const areaInteresse = '';
-    const pretensaoSalarial = '';
+    const cargoDesejado = 'Desenvolvedor Back-End';
+    const areaInteresse = 'TI';
+    const pretensaoSalarial = '50000';
+    const informacoesComplementares = 'Conhecimentos básicos em Pacote Office.\n' +
+      'Conhecimentos e noções de programação Web utilizando HTML, CSS e JavaScript.\n' +
+      'Noções de programação Back-end utilizando Python, Java e Kotlin.';
     let imageUrl = '';
     return{
       nome: nome,
@@ -693,6 +720,7 @@ export default defineComponent({
       cargo_desejado: cargoDesejado,
       areaInteresse: areaInteresse,
       pretensaoSalarial: pretensaoSalarial,
+      informacoesComplementares: informacoesComplementares,
       viajarEmpresa: 'nao',
       trabalharOutraCidadeEmpresa: 'nao',
       lastY: 0,
