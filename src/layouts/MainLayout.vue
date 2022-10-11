@@ -1,7 +1,7 @@
 <template>
   <q-layout>
-    <q-header elevated>
-      <q-toolbar>
+    <q-header elevated class="rounded-borders">
+      <q-toolbar class="bg-green rounded-borders">
         <q-btn
           flat
           dense
@@ -12,7 +12,7 @@
         />
 
         <q-toolbar-title>
-          Currículo PDF App
+          Gerador de Currículo PDF
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -36,12 +36,13 @@
             expand-separator
             icon="person"
             class="column"
+            default-opened
             label="Dados pessoais">
 
               <q-input
               v-model="nome"
               class="q-pa-sm"
-              :rules="[ val => val.length > 0|| 'Nome é obrigatório !' ]"
+              :rules="[ val => val.length > 0 || 'Nome é obrigatório !' ]"
               label="Nome Completo">
               </q-input>
 
@@ -86,25 +87,6 @@
                 </template>
               </q-select>
 
-              <q-file
-                v-model="file"
-                label="Foto"
-                class="q-pa-sm"
-                accept=".jpg, .png, image/*"
-                @update:model-value="handleUpload()"
-              >
-                <template v-if="!file" v-slot:prepend>
-                  <q-icon name="photo_camera"></q-icon>
-                </template>
-                <template v-else v-slot:prepend>
-                  <q-icon name="photo_camera"></q-icon>
-                </template>
-              </q-file>
-                <q-img
-                  :src="imageUrl"
-                  spinner-color="white"
-                  style="height: 140px; max-width: 150px"
-                ></q-img>
           </q-expansion-item>
 
           <q-expansion-item
@@ -279,6 +261,14 @@
               </template>
             </q-field>
 
+          </q-expansion-item>
+
+          <q-expansion-item
+            expand-separator
+            icon="post_add"
+            class="column"
+            label="Informações Complementares">
+
             <span class="q-pa-sm">Aceitaria viajar pela empresa?</span>
             <div class="q-pa-sm">
               <q-radio v-model="viajarEmpresa" label="Sim" val="sim"/>
@@ -291,14 +281,6 @@
               <q-radio v-model="trabalharOutraCidadeEmpresa" label="Não" val="nao"/>
             </div>
 
-          </q-expansion-item>
-
-          <q-expansion-item
-            expand-separator
-            icon="post_add"
-            class="column"
-            label="Informações Complementares">
-
             <q-input
               v-model="informacoesComplementares"
               class="q-pa-sm"
@@ -310,8 +292,8 @@
 
         </q-list>
 
-        <div class="flex column">
-          <q-btn type="submit">Gerar PDF</q-btn>
+        <div class="flex justify-center row">
+          <q-btn color="green" rounded type="submit">Gerar PDF</q-btn>
           <button v-if="$q.platform.is.cordova" onclick="window.plugins.socialsharing.share('Here is your PDF file', 'Your PDF','file:///storage/emulated/0/Download/log.pdf','file:///storage/emulated/0/Download/log.pdf')">Share PDF</button>
           <q-btn v-if="$q.platform.is.cordova" @click="openPDF">Open PDF</q-btn>
         </div>
@@ -342,7 +324,6 @@ export default defineComponent({
   },
 
   methods: {
-
     editEmpresa(index){
       this.showEditEmpresaModal.view = true;
       this.showEditEmpresaModal.index = index;
@@ -426,24 +407,10 @@ export default defineComponent({
       return Math.abs(idade.getUTCFullYear() - 1970);
     },
 
-    handleUpload(){
-      if (this.file) {
-        this.imageUrl = URL.createObjectURL(this.file);
-      }
-    },
     iso2FlagEmoji(iso){
       if(!iso) return null;
       iso = countries.alpha3ToAlpha2(iso);
       return String.fromCodePoint(...[...iso.toUpperCase()].map(char => char.charCodeAt(0) + 127397))
-    },
-
-    getBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-      });
     },
 
     async geratePDF() {
@@ -486,7 +453,12 @@ export default defineComponent({
       doc.setFontSize(6)
       doc.setTextColor(210, 215, 211)
       this.lastY = this.lastY + 5;
-      doc.text('__________________________________________________________________________________________________________________________________________________', 20, this.lastY, {maxWidth: 170})
+      if(this.file){
+        doc.text('_________________________________________________________________________________________________________________', 20, this.lastY, {maxWidth: 140})
+      }else{
+        doc.text('__________________________________________________________________________________________________________________________________________________', 20, this.lastY, {maxWidth: 170})
+      }
+
 
       doc.setFontSize (23)
       doc.setTextColor(0, 0, 0)
@@ -501,11 +473,13 @@ export default defineComponent({
       doc.setFont('helvetica', 'normal')
       doc.text(this.email, 37, this.lastY)
 
-      doc.setFont('helvetica', 'bold')
-      this.lastY = this.lastY + 5;
-      doc.text('País de Nacionalidade: ', 22, this.lastY)
-      doc.setFont('helvetica', 'normal')
-      doc.text(this.paisNacionalidade.label, 69, this.lastY)
+      if(this.paisNacionalidade.label){
+        doc.setFont('helvetica', 'bold')
+        this.lastY = this.lastY + 5;
+        doc.text('País de Nacionalidade: ', 22, this.lastY)
+        doc.setFont('helvetica', 'normal')
+        doc.text(this.paisNacionalidade.label, 69, this.lastY)
+      }
 
       doc.setFont('helvetica', 'bold')
       this.lastY = this.lastY + 5;
@@ -523,7 +497,7 @@ export default defineComponent({
       this.lastY = this.lastY + 5;
       doc.text('Endereço: ', 22, this.lastY)
       doc.setFont('helvetica', 'normal')
-      doc.text(`${this.endereco} ${this.bairroLocal} ${this.cep} ${this.cidadeLocal} ${this.estadoLocal.label ? this.estadoLocal.label : ''} ${this.paisLocal.label ? this.paisLocal.label : ''}`, 42, this.lastY,{maxWidth: 170})
+      doc.text(`${this.endereco} ${this.bairroLocal} ${this.cep} ${this.cidadeLocal} ${this.estadoLocal.label ? this.estadoLocal.label : ''} ${this.paisLocal.label ? this.paisLocal.label : ''}`, 44, this.lastY,{maxWidth: 170})
 
       doc.setFontSize (23)
       doc.setTextColor(0, 0, 0)
@@ -550,14 +524,15 @@ export default defineComponent({
         })
       }
 
-      doc.setFontSize (23)
-      doc.setTextColor(0, 0, 0)
-      this.lastY = this.lastY + 15;
-      doc.text('Histórico profissional', 20,this.lastY)
-
-      doc.setFontSize(12);
 
       if(this.empresasObj.length > 0){
+        doc.setFontSize (23)
+        doc.setTextColor(0, 0, 0)
+        this.lastY = this.lastY + 15;
+        doc.text('Histórico profissional', 20,this.lastY)
+
+        doc.setFontSize(12);
+
         await this.empresasObj.forEach((empresa, index) =>{
           doc.setFont('helvetica', 'bold')
           this.lastY = this.lastY + 10;
@@ -601,14 +576,10 @@ export default defineComponent({
 
       doc.setFontSize(12);
 
-      this.lastY = this.lastY + 8;
-      doc.setFont('helvetica', 'normal')
-      doc.text(this.informacoesComplementares, 22, this.lastY)
-
-      if(this.file){
-        await this.getBase64 (this.file).then (data => {
-          doc.addImage (data.toString (), 'PNG', 15, 50, 50, 50)
-        });
+      if(this.informacoesComplementares){
+        this.lastY = this.lastY + 8;
+        doc.setFont('helvetica', 'normal')
+        doc.text(this.informacoesComplementares, 22, this.lastY)
       }
 
       const pdfOutput = doc.output ("arraybuffer");
@@ -650,42 +621,42 @@ export default defineComponent({
   },
 
   data(){
-    const nome = 'Vinicius da Silva Fortes';
-    const dataNascimento = '13/11/2000';
-    const estadoCivil = 'Solteiro(a)';
-    const sexo = 'Masculino'
+    const nome = '';
+    const dataNascimento = '';
+    const estadoCivil = '';
+    const sexo = ''
     const optionsSexo = ['Masculino', 'Feminino'];
     const optionsEstadoCivil = ['Solteiro(a)', 'Casado(a)', 'Separado(a)', 'Divorciado(a)', 'Viúvo(a)'];
     const paisNacionalidade = {label: null, value: null, flag: null, dialCode: null};
     const optionsPaisNacionalidade = [];
-    const email = 'viniciussilvafortes@gmail.com';
-    const telefone = '32998033583';
-    const celular = '32998033583';
-    const cep = '36090290';
+    const email = '';
+    const telefone = '';
+    const celular = '';
+    const cep = '';
     const paisLocal = {label: null, value: null};
     const optionsPaisLocal = [{label: null, value: null}]
     const estadoLocal = {label: null, value: null};
     const optionsEstadoLocal = [{label: null, value: null}];
     const cidadeLocal = '';
     const optionsCidadeLocal = [];
+    const filterCidadeLocalidade = ref(optionsCidadeLocal);
     const bairroLocal = '';
     const endereco = '';
-    const file = null;
     const leftDrawerOpen = null;
     const toggleLeftDrawer = null;
     const showEditCursoModal = {view: false, index: null};
     const showEditEmpresaModal = {view: false, index: null};
-    const nivelEscolaridade = 'Formação Superior Incompleta';
+    const nivelEscolaridade = '';
     const optionsNivelEscolaridade = ['Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 'Ensino Médio Completo', 'Formação Superior Incompleta', 'Formação Superior Completa', 'Pós-graduação no nível Especialização', 'Pós-graduação no nível Mestrado', 'Pós-graduação no nível Doutorado'];
     let cursosObjs = [];
     let empresasObj = [];
-    const cargoDesejado = 'Desenvolvedor Back-End';
-    const areaInteresse = 'TI';
-    const pretensaoSalarial = '50000';
-    const informacoesComplementares = 'Conhecimentos básicos em Pacote Office.\n' +
-      'Conhecimentos e noções de programação Web utilizando HTML, CSS e JavaScript.\n' +
-      'Noções de programação Back-end utilizando Python, Java e Kotlin.';
-    let imageUrl = '';
+    const cargoDesejado = '';
+    const areaInteresse = '';
+    const pretensaoSalarial = '';
+    const informacoesComplementares = '';
+    const controleDados = 0;
+    const viajarEmpresa = 'nao';
+    const trabalharOutraCidade = 'nao';
     return{
       nome: nome,
       dataNascimento: dataNascimento,
@@ -704,6 +675,7 @@ export default defineComponent({
       estadoLocal: estadoLocal,
       optionsEstadoLocal: optionsEstadoLocal,
       cidadeLocal: cidadeLocal,
+      filterCidadeLocalidade: filterCidadeLocalidade,
       optionsCidadeLocal: optionsCidadeLocal,
       bairroLocal: bairroLocal,
       endereco: endereco,
@@ -711,18 +683,17 @@ export default defineComponent({
       optionsNivelEscolaridade: optionsNivelEscolaridade,
       cursosObjs: cursosObjs,
       empresasObj: empresasObj,
-      file: file,
       showEditCursoModal: showEditCursoModal,
       showEditEmpresaModal: showEditEmpresaModal,
       leftDrawerOpen: leftDrawerOpen,
       toggleLeftDrawer: toggleLeftDrawer,
-      imageUrl: imageUrl,
       cargo_desejado: cargoDesejado,
       areaInteresse: areaInteresse,
       pretensaoSalarial: pretensaoSalarial,
       informacoesComplementares: informacoesComplementares,
-      viajarEmpresa: 'nao',
-      trabalharOutraCidadeEmpresa: 'nao',
+      controleDados: controleDados,
+      viajarEmpresa: viajarEmpresa,
+      trabalharOutraCidadeEmpresa: trabalharOutraCidade,
       lastY: 0,
       moneyFormatForDirective: {
         decimal: ',',

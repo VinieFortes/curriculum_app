@@ -6,6 +6,9 @@
         Apache Cordova Team
     </author>
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarBackgroundColor" value="#4caf50" />
+    <preference name="StatusBarStyle" value="lightcontent" />
     <preference name="AndroidExtraFilesystems" value="files,cache, sdcard, cache-external, files-external" />
     <content src="index.html" />
     <allow-intent href="http://*/*" />

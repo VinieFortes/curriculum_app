@@ -21,6 +21,7 @@
     "cordova-plugin-device": "^2.1.0",
     "cordova-plugin-file": "^7.0.0",
     "cordova-plugin-file-opener2": "^3.0.5",
+    "cordova-plugin-statusbar": "^3.0.0",
     "cordova-plugin-x-socialsharing": "^6.0.4",
     "es6-promise-plugin": "^4.2.2"
   },
@@ -40,7 +41,8 @@
       "cordova-plugin-file-opener2": {
         "ANDROID_SUPPORT_V4_VERSION": "28"
       },
-      "cordova-plugin-device": {}
+      "cordova-plugin-device": {},
+      "cordova-plugin-statusbar": {}
     }
   }
 }
