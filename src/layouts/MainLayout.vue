@@ -30,10 +30,10 @@
           <q-linear-progress dark stripe rounded size="20px" indeterminate color="green" class="q-mt-sm" />
           <q-item-label class="q-mt-sm text-green">O QUE FALTA ?</q-item-label>
 
-          <q-expansion-item v-for="item in itensMenu"  class="q-mt-sm" expand-separator :header-class="item.color" :icon="item.icon" :label="item.label" >
+          <q-expansion-item v-for="item in itensMenu" class="q-mt-sm" expand-separator :header-class="item.fields.every(val => val.status === true) ? 'text-green' : 'text-negative'" :icon="item.icon" :label="item.label" >
             <div class="q-ml-lg" v-for="field in item.fields">
-              <q-icon :color="field.status.length > 0 ? 'positive' : 'negative'" :name="field.status.length > 0 ? 'check' : 'clear'"/>
-              <span :class="field.status.length > 0 ? 'text-green' : 'text-negative'">{{field.label}}</span>
+              <q-icon :color="field.status ? 'positive' : 'negative'" :name="field.status ? 'check' : 'clear'"/>
+              <span :class="field.status ? 'text-green' : 'text-negative'">{{field.label}}</span>
             </div>
           </q-expansion-item>
         </q-item>
@@ -62,7 +62,7 @@
           <q-form
             @submit="nextStep">
             <q-input
-              @update:model-value="progress('nome')"
+              @update:model-value="progress"
               v-model="nome"
               class="q-pa-sm"
               :rules="[ val => val.length > 0|| 'Nome é obrigatório !' ]"
@@ -70,6 +70,7 @@
             </q-input>
 
             <q-input
+              @update:model-value="progress"
               v-model="dataNascimento"
               class="q-pa-sm"
               mask="##/##/####"
@@ -297,7 +298,7 @@
           <q-form
             @submit="nextStep">
             <q-input
-              v-model="cargo_desejado"
+              v-model="cargoDesejado"
               class="q-pa-sm"
               :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
               label="Cargo desejado">
@@ -393,11 +394,7 @@ export default defineComponent({
 
   methods: {
     progress(event){
-      switch (event){
-        case 'nome':
-          this.itensMenu
-          break
-      }
+      event.length > 0 ? this.itensMenu[0].fields[0].status = true: this.itensMenu[0].fields[0].status = false;
     },
     editEmpresa(index){
       this.showEditEmpresaModal.view = true;
@@ -695,7 +692,13 @@ export default defineComponent({
       this.optionsPaisLocal.push({label: pais.label, value: pais.code})
     })
 
-    console.log(this.itensMenu)
+    this.itensMenu.forEach(menuItem =>{
+      menuItem.fields.forEach(item =>{
+        this.$watch(item.field, (newQuestion) => {
+          newQuestion.label ? item.status = newQuestion.label.length > 0 : item.status = newQuestion.length > 0;
+        })
+      })
+    })
 
   },
 
@@ -737,14 +740,12 @@ export default defineComponent({
     const controleDados = 0;
     const viajarEmpresa = 'nao';
     const trabalharOutraCidade = 'nao';
-    const itensMenu2= [];
     const itensMenu = [
-      {icon: 'person', color: 'text-red', label: 'Dados Pessoais', fields: [{label: 'Nome', status: nome}, {label:'Data de Nascimento', status: false}, {label: 'Sexo', status: false}, {label: 'Estado Civil', status: false}, {label: 'País de Nascionalidade', status: false}]},
-      {icon: 'contact_page', color: 'text-red', label: 'Informações de Contato', fields: [{label: 'E-mail', status: false}, {label: 'Telefone', status: false}, {label: 'Celular', status: false}, {label: 'CEP', status: false}, {label: 'País', status: false},{label: 'Estado', status: false},{label: 'Cidade', status: false},{label: 'Bairro', status: false}, {label: 'Endereço', status: false},]},
-      {icon: 'school', color: 'text-red', label: 'Formação', fields: [{label: 'Nível de Escolaridade', status: false}]},
-      {icon: 'engineering', color: 'text-red', label: 'Histórico Profissional'},
-      {icon: 'checklist', color: 'text-red', label: 'Objetivos', fields: [{label: 'Cargo Desejado', status: false}, {label: 'Área de Interesse', status: false}, {label: 'Pretensão Salarial', status: false}]},
-      {icon: 'post_add', color: 'text-red', label: 'Informações Complementares', fields: [ {label: 'Informações Complementares', status: false}]}]
+      {icon: 'person', label: 'Dados Pessoais', fields: [{label: 'Nome', status: false, field: 'nome'}, {label:'Data de Nascimento', status: false, field: 'dataNascimento'}, {label: 'País de Nascionalidade', status: false, field: 'paisNacionalidade'}]},
+      {icon: 'contact_page', label: 'Informações de Contato', fields: [{label: 'E-mail', status: false, field: 'email'}, {label: 'Telefone', status: false, field: 'telefone'}, {label: 'Celular', status: false, field: 'celular'}, {label: 'CEP', status: false, field: 'cep'}, {label: 'País', status: false, field: 'paisLocal'},{label: 'Estado', status: false, field: 'estadoLocal'},{label: 'Cidade', status: false, field: 'cidadeLocal'},{label: 'Bairro', status: false, field: 'bairroLocal'}, {label: 'Endereço', status: false, field: 'endereco'},]},
+      {icon: 'school', label: 'Formação', fields: [{label: 'Nível de Escolaridade', status: false, field: 'nivelEscolaridade'}]},
+      {icon: 'checklist', label: 'Objetivos', fields: [{label: 'Cargo Desejado', status: false, field: 'cargoDesejado'}, {label: 'Área de Interesse', status: false, field: 'areaInteresse'}, {label: 'Pretensão Salarial', status: false, field: 'pretensaoSalarial'}]},
+      {icon: 'post_add', label: 'Informações Complementares', fields: [ {label: 'Informações Complementares', status: false, field: 'informacoesComplementares'}]}]
     return{
       step: step,
       nome: nome,
@@ -776,7 +777,7 @@ export default defineComponent({
       showEditEmpresaModal: showEditEmpresaModal,
       leftDrawerOpen: leftDrawerOpen,
       toggleLeftDrawer: toggleLeftDrawer,
-      cargo_desejado: cargoDesejado,
+      cargoDesejado: cargoDesejado,
       areaInteresse: areaInteresse,
       pretensaoSalarial: pretensaoSalarial,
       informacoesComplementares: informacoesComplementares,
@@ -784,7 +785,6 @@ export default defineComponent({
       viajarEmpresa: viajarEmpresa,
       trabalharOutraCidadeEmpresa: trabalharOutraCidade,
       itensMenu: itensMenu,
-      itensMenu2: itensMenu2,
       lastY: 0,
       moneyFormatForDirective: {
         decimal: ',',
