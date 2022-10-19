@@ -2,7 +2,7 @@
   "name": "curriculum-app",
   "version": "0.0.1",
   "description": "A Quasar Project",
-  "productName": "CurriculumaApp",
+  "productName": "Curriculum Gerador PDF",
   "author": "vinieFortes <vinie4apps@gmail.com>",
   "private": true,
   "scripts": {

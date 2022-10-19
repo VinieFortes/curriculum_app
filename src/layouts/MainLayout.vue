@@ -23,78 +23,109 @@
       bordered
     >
       <q-list>
+        <q-item class="flex column">
+          <q-item-label class="text-bold text-green">
+            Preenchimento do currículo
+          </q-item-label>
+          <q-linear-progress dark stripe rounded size="20px" indeterminate color="green" class="q-mt-sm" />
+          <q-item-label class="q-mt-sm text-green">O QUE FALTA ?</q-item-label>
 
+          <q-expansion-item v-for="item in itensMenu"  class="q-mt-sm" expand-separator :header-class="item.color" :icon="item.icon" :label="item.label" >
+            <div class="q-ml-lg" v-for="field in item.fields">
+              <q-icon :color="field.status.length > 0 ? 'positive' : 'negative'" :name="field.status.length > 0 ? 'check' : 'clear'"/>
+              <span :class="field.status.length > 0 ? 'text-green' : 'text-negative'">{{field.label}}</span>
+            </div>
+          </q-expansion-item>
+        </q-item>
       </q-list>
     </q-drawer>
 
     <q-page-container>
-      <q-form
-        @submit="onSubmit"
-      >
-        <q-list>
-          <q-expansion-item
-            expand-separator
-            icon="person"
-            class="column"
-            default-opened
-            label="Dados pessoais">
+      <q-stepper
+        v-model="step"
+        vertical
+        :header-nav="step === 7"
+        bordered
+        color="green"
+        animated>
 
-              <q-input
+        <span v-if="step === 7" class="note flex flex-center bg-light-green-1 q-pa-sm text-green text-bold q-ma-sm">Caso precise fazer alguma mudança no seu currículo apenas clique em dos estagios abaixo.</span>
+
+        <q-step
+          :name="1"
+          title="Dados pessoais"
+          icon="person"
+          active-color="primary"
+          done-color="green"
+          :done="step > 1"
+        >
+          <q-form
+            @submit="nextStep">
+            <q-input
+              @update:model-value="progress('nome')"
               v-model="nome"
               class="q-pa-sm"
-              :rules="[ val => val.length > 0 || 'Nome é obrigatório !' ]"
+              :rules="[ val => val.length > 0|| 'Nome é obrigatório !' ]"
               label="Nome Completo">
-              </q-input>
+            </q-input>
 
-              <q-input
-                v-model="dataNascimento"
-                class="q-pa-sm"
-                mask="##/##/####"
-                label="Data de Nascimento">
+            <q-input
+              v-model="dataNascimento"
+              class="q-pa-sm"
+              mask="##/##/####"
+              label="Data de Nascimento">
 
-                <template v-slot:append>
-                  <q-icon name="event" class="cursor-pointer">
-                    <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                      <q-date mask="DD/MM/YYYY" v-model="dataNascimento" @input="() => $refs.qDateProxy.hide()" ></q-date>
-                    </q-popup-proxy>
-                  </q-icon>
-                </template>
-              </q-input>
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                    <q-date mask="DD/MM/YYYY" v-model="dataNascimento" @input="() => $refs.qDateProxy.hide()" ></q-date>
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
 
-              <q-select
-                v-model="sexo"
-                :options="optionsSexo"
-                class="q-pa-sm"
-                :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
-                label="Sexo">
-              </q-select>
+            <q-select
+              v-model="sexo"
+              :options="optionsSexo"
+              class="q-pa-sm"
+              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+              label="Sexo">
+            </q-select>
 
-              <q-select
+            <q-select
               v-model="estadoCivil"
               :options="optionsEstadoCivil"
               class="q-pa-sm"
               :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
               label="Estado Civil">
-              </q-select>
+            </q-select>
 
-              <q-select
-                v-model="paisNacionalidade"
-                :options="optionsPaisNacionalidade"
-                class="q-pa-sm"
-                label="País de Nacionalidade">
-                <template v-if="paisNacionalidade.flag" v-slot:prepend>
-                  <span style="font-size: 17px">{{ this.iso2FlagEmoji(paisNacionalidade.flag)}}</span>
-                </template>
-              </q-select>
+            <q-select
+              v-model="paisNacionalidade"
+              :options="optionsPaisNacionalidade"
+              class="q-pa-sm"
+              label="País de Nacionalidade">
+              <template v-if="paisNacionalidade.flag" v-slot:prepend>
+                <span style="font-size: 17px">{{ this.iso2FlagEmoji(paisNacionalidade.flag)}}</span>
+              </template>
+            </q-select>
+            <q-stepper-navigation>
+              <q-btn type="submit" color="green" label="Continuar" />
+            </q-stepper-navigation>
+          </q-form>
 
-          </q-expansion-item>
+        </q-step>
 
-          <q-expansion-item
-            expand-separator
-            icon="contact_page"
-            class="column"
-            label="Informações de Contato">
-
+        <q-step
+          :name="2"
+          title="Informações de Contato"
+          active-color="primary"
+          done-color="green"
+          icon="contact_page"
+          :done="step > 2"
+        >
+          <q-form
+            @submit="nextStep">
             <q-input
               v-model="email"
               class="q-pa-sm"
@@ -163,14 +194,23 @@
               label="Endereço">
             </q-input>
 
-          </q-expansion-item>
+            <q-stepper-navigation>
+              <q-btn type="submit" color="green" label="Continuar" />
+              <q-btn flat @click="step = 1" color="green" label="Voltar" class="q-ml-sm" />
+            </q-stepper-navigation>
+          </q-form>
+        </q-step>
 
-          <q-expansion-item
-            expand-separator
-            icon="school"
-            class="column"
-            label="Formação">
-
+        <q-step
+          :name="3"
+          title="Formação"
+          icon="school"
+          active-color="primary"
+          done-color="green"
+          :done="step > 3"
+        >
+          <q-form
+            @submit="nextStep">
             <q-select
               v-model="nivelEscolaridade"
               :options="optionsNivelEscolaridade"
@@ -200,14 +240,24 @@
               <q-btn @click="addCurso" :disable="showEditCursoModal.view" icon="school" label="Adicionar Curso"></q-btn>
             </div>
 
-          </q-expansion-item>
+            <q-stepper-navigation>
+              <q-btn type="submit" color="green" label="Continuar" />
+              <q-btn flat @click="step = 2" color="green" label="Voltar" class="q-ml-sm" />
+            </q-stepper-navigation>
+          </q-form>
 
-          <q-expansion-item
-            expand-separator
-            icon="engineering"
-            class="column"
-            label="Histórico Profissional">
+        </q-step>
 
+        <q-step
+          :name="4"
+          title="Histórico Profissional"
+          icon="engineering"
+          active-color="primary"
+          done-color="green"
+          :done="step > 4"
+        >
+          <q-form
+            @submit="nextStep">
             <div v-if="empresasObj.length === 0" class="flex q-pa-sm items-center justify-center bg-red-1">
               <span style="font-weight: bold">Nenhuma empresa adicionada !</span>
             </div>
@@ -229,14 +279,23 @@
               <q-btn @click="addEmpresa" :disable="showEditEmpresaModal.view" icon="business" label="Adicionar Empresa"></q-btn>
             </div>
 
-          </q-expansion-item>
+            <q-stepper-navigation>
+              <q-btn type="submit" color="green" label="Continuar" />
+              <q-btn flat @click="step = 3" color="green" label="Voltar" class="q-ml-sm" />
+            </q-stepper-navigation>
+          </q-form>
+        </q-step>
 
-          <q-expansion-item
-            expand-separator
-            icon="checklist"
-            class="column"
-            label="Objetivos">
-
+        <q-step
+          :name="5"
+          title="Objetivos"
+          icon="checklist"
+          active-color="primary"
+          done-color="green"
+          :done="step > 5"
+        >
+          <q-form
+            @submit="nextStep">
             <q-input
               v-model="cargo_desejado"
               class="q-pa-sm"
@@ -261,14 +320,23 @@
               </template>
             </q-field>
 
-          </q-expansion-item>
+            <q-stepper-navigation>
+              <q-btn type="submit" color="green" label="Continuar" />
+              <q-btn flat @click="step = 4" color="green" label="Voltar" class="q-ml-sm" />
+            </q-stepper-navigation>
+          </q-form>
+        </q-step>
 
-          <q-expansion-item
-            expand-separator
-            icon="post_add"
-            class="column"
-            label="Informações Complementares">
-
+        <q-step
+          :name="6"
+          title="Informações Complementares"
+          icon="post_add"
+          active-color="primary"
+          done-color="green"
+          :done="step > 6"
+        >
+          <q-form
+            @submit="nextStep">
             <span class="q-pa-sm">Aceitaria viajar pela empresa?</span>
             <div class="q-pa-sm">
               <q-radio v-model="viajarEmpresa" label="Sim" val="sim"/>
@@ -288,16 +356,17 @@
               label="Informações complementares">
             </q-input>
 
-          </q-expansion-item>
-
-        </q-list>
-
-        <div class="flex justify-center row">
-          <q-btn color="green" rounded type="submit">Gerar PDF</q-btn>
-          <button v-if="$q.platform.is.cordova" onclick="window.plugins.socialsharing.share('Here is your PDF file', 'Your PDF','file:///storage/emulated/0/Download/log.pdf','file:///storage/emulated/0/Download/log.pdf')">Share PDF</button>
-          <q-btn v-if="$q.platform.is.cordova" @click="openPDF">Open PDF</q-btn>
-        </div>
-      </q-form>
+            <q-stepper-navigation>
+              <q-btn @click="geratePDF" type="submit" color="green" label="Gerar PDF" />
+              <q-btn flat @click="step = 5" color="green" label="Voltar" class="q-ml-sm" />
+            </q-stepper-navigation>
+          </q-form>
+        </q-step>
+      </q-stepper>
+      <div class="flex justify-center row">
+        <button v-if="$q.platform.is.cordova" onclick="window.plugins.socialsharing.share('Here is your PDF file', 'Your PDF','file:///storage/emulated/0/Download/log.pdf','file:///storage/emulated/0/Download/log.pdf')">Share PDF</button>
+        <q-btn v-if="$q.platform.is.cordova" @click="openPDF">Open PDF</q-btn>
+      </div>
     </q-page-container>
   </q-layout>
 </template>
@@ -313,7 +382,6 @@ import Curso from "components/Curso";
 import Empresa from "components/Empresa";
 import {Money3Component} from "v-money3";
 
-
 export default defineComponent({
   name: 'MainLayout',
 
@@ -324,6 +392,13 @@ export default defineComponent({
   },
 
   methods: {
+    progress(event){
+      switch (event){
+        case 'nome':
+          this.itensMenu
+          break
+      }
+    },
     editEmpresa(index){
       this.showEditEmpresaModal.view = true;
       this.showEditEmpresaModal.index = index;
@@ -364,8 +439,10 @@ export default defineComponent({
       this.showEditCursoModal.index = index;
     },
 
-    onSubmit () {
-      this.geratePDF();
+    nextStep() {
+      console.log(this.step)
+      // this.geratePDF();
+      this.step = this.step + 1;
     },
 
     selectCity(){
@@ -618,21 +695,24 @@ export default defineComponent({
       this.optionsPaisLocal.push({label: pais.label, value: pais.code})
     })
 
+    console.log(this.itensMenu)
+
   },
 
   data(){
-    const nome = '';
+    const step = 1;
+    const nome = 'Vini';
     const dataNascimento = '';
-    const estadoCivil = '';
-    const sexo = ''
+    const estadoCivil = 'Solteiro(a)';
+    const sexo = 'Masculino'
     const optionsSexo = ['Masculino', 'Feminino'];
     const optionsEstadoCivil = ['Solteiro(a)', 'Casado(a)', 'Separado(a)', 'Divorciado(a)', 'Viúvo(a)'];
     const paisNacionalidade = {label: null, value: null, flag: null, dialCode: null};
     const optionsPaisNacionalidade = [];
-    const email = '';
-    const telefone = '';
-    const celular = '';
-    const cep = '';
+    const email = 'vini@gmail.com';
+    const telefone = '3299803383';
+    const celular = '3299803383';
+    const cep = '36090290';
     const paisLocal = {label: null, value: null};
     const optionsPaisLocal = [{label: null, value: null}]
     const estadoLocal = {label: null, value: null};
@@ -657,7 +737,16 @@ export default defineComponent({
     const controleDados = 0;
     const viajarEmpresa = 'nao';
     const trabalharOutraCidade = 'nao';
+    const itensMenu2= [];
+    const itensMenu = [
+      {icon: 'person', color: 'text-red', label: 'Dados Pessoais', fields: [{label: 'Nome', status: nome}, {label:'Data de Nascimento', status: false}, {label: 'Sexo', status: false}, {label: 'Estado Civil', status: false}, {label: 'País de Nascionalidade', status: false}]},
+      {icon: 'contact_page', color: 'text-red', label: 'Informações de Contato', fields: [{label: 'E-mail', status: false}, {label: 'Telefone', status: false}, {label: 'Celular', status: false}, {label: 'CEP', status: false}, {label: 'País', status: false},{label: 'Estado', status: false},{label: 'Cidade', status: false},{label: 'Bairro', status: false}, {label: 'Endereço', status: false},]},
+      {icon: 'school', color: 'text-red', label: 'Formação', fields: [{label: 'Nível de Escolaridade', status: false}]},
+      {icon: 'engineering', color: 'text-red', label: 'Histórico Profissional'},
+      {icon: 'checklist', color: 'text-red', label: 'Objetivos', fields: [{label: 'Cargo Desejado', status: false}, {label: 'Área de Interesse', status: false}, {label: 'Pretensão Salarial', status: false}]},
+      {icon: 'post_add', color: 'text-red', label: 'Informações Complementares', fields: [ {label: 'Informações Complementares', status: false}]}]
     return{
+      step: step,
       nome: nome,
       dataNascimento: dataNascimento,
       estadoCivil: estadoCivil,
@@ -694,6 +783,8 @@ export default defineComponent({
       controleDados: controleDados,
       viajarEmpresa: viajarEmpresa,
       trabalharOutraCidadeEmpresa: trabalharOutraCidade,
+      itensMenu: itensMenu,
+      itensMenu2: itensMenu2,
       lastY: 0,
       moneyFormatForDirective: {
         decimal: ',',
@@ -706,3 +797,7 @@ export default defineComponent({
 
 })
 </script>
+
+<style scoped>
+
+</style>
