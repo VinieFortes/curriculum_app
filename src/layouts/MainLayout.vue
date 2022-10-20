@@ -230,8 +230,8 @@
               <span style="font-weight: bold">Nenhum curso adicionado !</span>
             </div>
 
-            <q-list v-if="!showEditCursoModal.view || cursosObjs.length > 1" separator bordered class="flex q-ma-sm">
-              <q-item  style="flex: 1" v-show="showEditCursoModal.index !== index || showEditCursoModal.view === false" v-for="(curso, index) in cursosObjs" class="flex row">
+            <q-list v-if="!showEditCursoModal.view || cursosObjs.length > 1" separator bordered class="q-ma-sm">
+              <q-item v-show="showEditCursoModal.index !== index || showEditCursoModal.view === false" v-for="(curso, index) in cursosObjs" class="flex row">
                 <div style="flex: 1" class="flex column">
                   <span style="font-weight: bold">{{ curso.tipoCurso }}</span>
                   <span>{{ curso.nomeCurso }}, {{ curso.instituicao }}</span>
@@ -404,7 +404,6 @@ import {Money3Component} from "v-money3";
 import { useQuasar } from 'quasar'
 
 let doc = new jsPDF ("p", "mm", "a4");
-const $q = useQuasar()
 
 export default defineComponent({
   name: 'MainLayout',
@@ -469,13 +468,42 @@ export default defineComponent({
       this.showEditCursoModal.index = this.cursosObjs.length - 1;
     },
 
+    checkPermission(){
+      const permissions = cordova.plugins.permissions;
+      const self = this;
+      permissions.hasPermission(permissions.WRITE_EXTERNAL_STORAGE, function( status ){
+        if ( status.hasPermission ) {
+          self.permissaoWriteFile = true;
+        }
+        else {
+          permissions.requestPermission(permissions.WRITE_EXTERNAL_STORAGE, success, error);
+          function error() {
+            alert('Para salavar seu PDF é necessario aceitar a permissão')
+          }
+          function success( status ) {
+            if( !status.hasPermission ){
+              error();
+            }else {
+              self.permissaoWriteFile = true;
+            }
+          }
+        }
+      });
+    },
+
     editCurso(index){
       this.showEditCursoModal.view = true;
       this.showEditCursoModal.index = index;
     },
 
     nextStep() {
-      this.step === 6 ? this.geratePDF() : null;
+      if(this.step === 6){
+        if(this.permissaoWriteFile === false){
+          this.checkPermission();
+        }else{
+          this.geratePDF()
+        }
+      }
       this.step = this.step + 1;
     },
 
@@ -529,17 +557,16 @@ export default defineComponent({
     },
 
      geratePDF() {
-        function capitalize(s)
-        {
+      function capitalize(s) {
           return s[0].toUpperCase() + s.slice(1);
-        }
+      }
 
-        async function gerateNewPage() {
+      async function gerateNewPage() {
           await doc.addPage ('a4', 'p');
-        }
+      }
 
       this.$watch('lastY', (newY, oldY)=> {
-        if(this.lastY >= 273){
+        if(this.lastY >= 275){
           console.log('createNewPage')
           this.lastY = 22;
           gerateNewPage();
@@ -758,6 +785,8 @@ export default defineComponent({
   },
 
   mounted() {
+    this.checkPermission();
+
     listaPaises.forEach(pais =>{
       this.optionsPaisNacionalidade.push({label: pais.label, value: pais.label, flag: pais.code, dialCode: pais.dialCode});
       this.optionsPaisLocal.push({label: pais.label, value: pais.code})
@@ -779,7 +808,7 @@ export default defineComponent({
   },
 
   data(){
-    const step = 1;
+    const step = 6;
     const nome = '';
     const dataNascimento = '';
     const estadoCivil = '';
@@ -817,7 +846,7 @@ export default defineComponent({
     const trabalharOutraCidade = 'nao';
     const showFileDialog = false;
     const filtroCidadeOptions = optionsCidadeLocal;
-    const filtroPaisOptions = optionsPaisLocal;
+    const permissaoWriteFile = false;
     const itensMenu = [
       {icon: 'person', label: 'Dados Pessoais', fields: [{label: 'Nome', status: false, field: 'nome'}, {label:'Data de Nascimento', status: false, field: 'dataNascimento'}, {label: 'País de Nascionalidade', status: false, field: 'paisNacionalidade'}]},
       {icon: 'contact_page', label: 'Informações de Contato', fields: [{label: 'E-mail', status: false, field: 'email'}, {label: 'Telefone', status: false, field: 'telefone'}, {label: 'Celular', status: false, field: 'celular'}, {label: 'CEP', status: false, field: 'cep'}, {label: 'País', status: false, field: 'paisLocal'},{label: 'Estado', status: false, field: 'estadoLocal'},{label: 'Cidade', status: false, field: 'cidadeLocal'},{label: 'Bairro', status: false, field: 'bairroLocal'}, {label: 'Endereço', status: false, field: 'endereco'},]},
@@ -864,6 +893,7 @@ export default defineComponent({
       itensMenu: itensMenu,
       showFileDialog: showFileDialog,
       filtroCidadeOptions: filtroCidadeOptions,
+      permissaoWriteFile: permissaoWriteFile,
       total: 17,
       lastY: 0,
       moneyFormatForDirective: {
