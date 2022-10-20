@@ -190,12 +190,14 @@
             <q-input
               v-model="bairroLocal"
               class="q-pa-sm"
+              maxlength="50"
               label="Bairro">
             </q-input>
 
             <q-input
               v-model="endereco"
               class="q-pa-sm"
+              maxlength="100"
               label="Endereço">
             </q-input>
 
@@ -229,7 +231,7 @@
             </div>
 
             <q-list v-if="!showEditCursoModal.view || cursosObjs.length > 1" separator bordered class="flex q-ma-sm">
-              <q-item v-show="showEditCursoModal.index !== index || showEditCursoModal.view === false" v-for="(curso, index) in cursosObjs" class="flex row">
+              <q-item  style="flex: 1" v-show="showEditCursoModal.index !== index || showEditCursoModal.view === false" v-for="(curso, index) in cursosObjs" class="flex row">
                 <div style="flex: 1" class="flex column">
                   <span style="font-weight: bold">{{ curso.tipoCurso }}</span>
                   <span>{{ curso.nomeCurso }}, {{ curso.instituicao }}</span>
@@ -306,6 +308,7 @@
             <q-input
               v-model="cargoDesejado"
               class="q-pa-sm"
+              maxlength="40"
               :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
               label="Cargo desejado">
             </q-input>
@@ -313,6 +316,7 @@
             <q-input
               v-model="areaInteresse"
               class="q-pa-sm"
+              maxlength="80"
               label="Área de interesse">
             </q-input>
 
@@ -776,38 +780,38 @@ export default defineComponent({
 
   data(){
     const step = 1;
-    const nome = 'Vinicius da Silva Fortes';
-    const dataNascimento = '13/11/2000';
-    const estadoCivil = 'Solteiro(a)';
-    const sexo = 'Masculino'
+    const nome = '';
+    const dataNascimento = '';
+    const estadoCivil = '';
+    const sexo = ''
     const optionsSexo = ['Masculino', 'Feminino'];
     const optionsEstadoCivil = ['Solteiro(a)', 'Casado(a)', 'Separado(a)', 'Divorciado(a)', 'Viúvo(a)'];
     const paisNacionalidade = {label: '', value: '', flag: '', dialCode: ''};
     const optionsPaisNacionalidade = [];
-    const email = 'vini@gmail.com';
-    const telefone = '3299803383';
-    const celular = '3299803383';
-    const cep = '36090290';
+    const email = '';
+    const telefone = '';
+    const celular = '';
+    const cep = '';
     const paisLocal = {label: '', value: ''};
     const optionsPaisLocal = [{label: '', value: ''}]
     const estadoLocal = {label: '', value: ''};
     const optionsEstadoLocal = [{label: '', value: ''}];
     const cidadeLocal = '';
     const optionsCidadeLocal = [];
-    const bairroLocal = 'Benfica';
-    const endereco = 'Rua Henrique Dias n 700';
+    const bairroLocal = '';
+    const endereco = '';
     const leftDrawerOpen = null;
     const toggleLeftDrawer = null;
     const showEditCursoModal = {view: false, index: null};
     const showEditEmpresaModal = {view: false, index: null};
-    const nivelEscolaridade = 'Formação Superior Incompleta';
+    const nivelEscolaridade = '';
     const optionsNivelEscolaridade = ['Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 'Ensino Médio Completo', 'Formação Superior Incompleta', 'Formação Superior Completa', 'Pós-graduação no nível Especialização', 'Pós-graduação no nível Mestrado', 'Pós-graduação no nível Doutorado'];
     let cursosObjs = [];
     let empresasObj = [];
-    const cargoDesejado = 'Desenvolvedor';
-    const areaInteresse = 'T.I';
+    const cargoDesejado = '';
+    const areaInteresse = '';
     const pretensaoSalarial = '';
-    const informacoesComplementares = 'dkjdnjd fjkhjfhfjhfjk fjfhkjfkjfjfokljf fjkfjfjkhfjhf fkjfjhfkjfkjf fjifkjifjhikfjkifjkf fjijfkijfkijfkfj fjksjkokljfkjhfsf snjhgfjhskfjfs sjhjfshjfhjfs sfnhjhfnsjfsnjkfs fhsfjhfsjnf fkjsfjhfsjksf fsmnsfjnjfs fsmnfsj f fsuf bfsjf hsfb sfnmsff sfjhufsf sb fsh fsnhf ssjhfbjhf fsjhfs nf syhffsh fshbfjfnjfs sfjfh sfmnfbhfnbfs f djhdhjdkid dkdjkdjkdlkd djkjddhjdhjd dmkdjkdjdhdjhd dkdhdjhdjhd dnjdhdhd dhjddjhdjdh djnjkdhjdhjdhd khdjhdjhdjd dmnmdnjdhjdndjnsakjko skjdkjhdkj djdjkdjkdjd djdkdjkdjkdklkd ddjhjkdjdk kdjkdjdkjhjkshud kdjhdjkhdhj jchchijcch hxxjkchchc cjoxkxouicihcin xhxughxx xhxhjxhxjhx xjhxhxjkjcjhckjuch xchgjxhxj djkidhdjn dnkdjkjdkd dkijdkijdkjd dmnkjdjdkd mkdjkdjkdjdj dnmdnjkdn dkdjdkd dnmdkjndkmd dndkjjndkdnmkd dnmdkjdkij';
+    const informacoesComplementares = '';
     const controleDados = 0;
     const viajarEmpresa = 'nao';
     const trabalharOutraCidade = 'nao';

@@ -7,6 +7,7 @@
             <q-input
               v-model="cursoObj.nomeCurso"
               class="q-pa-sm"
+              maxlength="50"
               :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
               label="Nome do curso">
             </q-input>
@@ -22,6 +23,7 @@
             <q-input
               v-model="cursoObj.instituicao"
               class="q-pa-sm"
+              maxlength="50"
               :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
               label="Instituição">
             </q-input>

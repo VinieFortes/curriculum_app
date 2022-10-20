@@ -7,6 +7,7 @@
         <q-input
           v-model="empresaObj.nomeEmpresa"
           class="q-pa-sm"
+          maxlength="50"
           :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
           label="Nome da empresa">
         </q-input>
@@ -14,6 +15,7 @@
         <q-input
           v-model="empresaObj.cargo"
           class="q-pa-sm"
+          maxlength="50"
           :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
           label="Ultimo cargo">
         </q-input>
@@ -23,6 +25,7 @@
           class="q-pa-sm"
           type="textarea"
           autogrow
+          maxlength="200"
           :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
           label="Resumo profissional">
         </q-input>
@@ -44,7 +47,6 @@
 
           <template v-slot:counter>
             <span style="font-size: 16px">Se este for o seu emprego atual deixe o término em branco.</span>
-
           </template>
         </q-input>
 
