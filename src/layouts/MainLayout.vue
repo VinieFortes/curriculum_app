@@ -16,7 +16,6 @@
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
-
     <q-drawer
       v-model="leftDrawerOpen"
       show-if-above
@@ -27,7 +26,7 @@
           <q-item-label class="text-bold text-green">
             Preenchimento do currículo
           </q-item-label>
-          <q-linear-progress dark stripe rounded size="20px" indeterminate color="green" class="q-mt-sm" />
+          <q-linear-progress dark stripe rounded :value="step / 6" size="20px"  color="green" class="q-mt-sm" />
           <q-item-label class="q-mt-sm text-green">O QUE FALTA ?</q-item-label>
 
           <q-expansion-item v-for="item in itensMenu" class="q-mt-sm" expand-separator :header-class="item.fields.every(val => val.status === true) ? 'text-green' : 'text-negative'" :icon="item.icon" :label="item.label" >
@@ -137,7 +136,6 @@
             <q-input
               v-model="telefone"
               class="q-pa-sm"
-              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
               label="Telefone">
             </q-input>
 
@@ -354,6 +352,7 @@
               v-model="informacoesComplementares"
               class="q-pa-sm"
               type="textarea"
+              maxlength="500"
               label="Informações complementares">
             </q-input>
 
@@ -382,6 +381,8 @@ import { Platform } from 'quasar'
 import Curso from "components/Curso";
 import Empresa from "components/Empresa";
 import {Money3Component} from "v-money3";
+
+let doc = new jsPDF ("p", "mm", "a4");
 
 export default defineComponent({
   name: 'MainLayout',
@@ -437,7 +438,6 @@ export default defineComponent({
     },
 
     nextStep() {
-      console.log(this.step)
       // this.geratePDF();
       this.step = this.step + 1;
     },
@@ -487,14 +487,21 @@ export default defineComponent({
       return String.fromCodePoint(...[...iso.toUpperCase()].map(char => char.charCodeAt(0) + 127397))
     },
 
-    async geratePDF() {
-      const doc = new jsPDF ("p", "mm", "a4");
+     geratePDF() {
+        function capitalize(s)
+        {
+          return s[0].toUpperCase() + s.slice(1);
+        }
+
+        async function gerateNewPage() {
+          await doc.addPage ('a4', 'p');
+        }
 
       this.$watch('lastY', (newY, oldY)=> {
-        console.log(newY, oldY)
-        if(newY >= 248){
+        if(this.lastY >= 273){
+          console.log('createNewPage')
           this.lastY = 22;
-          doc.addPage('a4', 'p');
+          gerateNewPage();
         }
       }, {immediate: true, flush: 'sync'})
 
@@ -555,11 +562,13 @@ export default defineComponent({
         doc.text(this.paisNacionalidade.label, 69, this.lastY)
       }
 
-      doc.setFont('helvetica', 'bold')
-      this.lastY = this.lastY + 5;
-      doc.text('Telefone: ', 22, this.lastY)
-      doc.setFont('helvetica', 'normal')
-      doc.text(this.telefone, 42, this.lastY)
+      if(this.telefone){
+        doc.setFont('helvetica', 'bold')
+        this.lastY = this.lastY + 5;
+        doc.text('Telefone: ', 22, this.lastY)
+        doc.setFont('helvetica', 'normal')
+        doc.text(this.telefone, 42, this.lastY)
+      }
 
       doc.setFont('helvetica', 'bold')
       this.lastY = this.lastY + 5;
@@ -587,7 +596,7 @@ export default defineComponent({
       doc.text(this.nivelEscolaridade, 51, this.lastY)
 
       if(this.cursosObjs.length > 0){
-        await this.cursosObjs.forEach((curso, index) =>{
+         this.cursosObjs.forEach((curso, index) =>{
           doc.setFont('helvetica', 'bold')
           this.lastY = this.lastY + 10;
           doc.text(curso.tipoCurso, 22, this.lastY);
@@ -607,7 +616,7 @@ export default defineComponent({
 
         doc.setFontSize(12);
 
-        await this.empresasObj.forEach((empresa, index) =>{
+         this.empresasObj.forEach((empresa, index) =>{
           doc.setFont('helvetica', 'bold')
           this.lastY = this.lastY + 10;
           doc.text(empresa.nomeEmpresa, 22, this.lastY);
@@ -629,19 +638,24 @@ export default defineComponent({
       this.lastY = this.lastY + 8;
       doc.text('Cargo desejado: ', 22, this.lastY)
       doc.setFont('helvetica', 'normal')
-      doc.text(this.cargo_desejado, 57, this.lastY)
+      doc.text(this.cargoDesejado, 57, this.lastY)
 
-      doc.setFont('helvetica', 'bold')
-      this.lastY = this.lastY + 5;
-      doc.text('Área de interesse: ', 22, this.lastY)
-      doc.setFont('helvetica', 'normal')
-      doc.text(this.areaInteresse, 60, this.lastY)
+      if(this.areaInteresse){
+        doc.setFont('helvetica', 'bold')
+        this.lastY = this.lastY + 5;
+        doc.text('Área de interesse: ', 22, this.lastY)
+        doc.setFont('helvetica', 'normal')
+        doc.text(this.areaInteresse, 60, this.lastY)
+      }
 
-      doc.setFont('helvetica', 'bold')
-      this.lastY = this.lastY + 5;
-      doc.text('Pretensão salarial: ', 22, this.lastY)
-      doc.setFont('helvetica', 'normal')
-      doc.text('R$ ' + this.pretensaoSalarial, 62, this.lastY)
+      if(this.pretensaoSalarial > 0.00){
+        doc.setFont('helvetica', 'bold')
+        this.lastY = this.lastY + 5;
+        doc.text('Pretensão salarial: ', 22, this.lastY)
+        doc.setFont('helvetica', 'normal')
+        doc.text('R$ ' + this.pretensaoSalarial, 62, this.lastY)
+      }
+
 
       doc.setFontSize (23)
       doc.setTextColor(0, 0, 0)
@@ -650,16 +664,28 @@ export default defineComponent({
 
       doc.setFontSize(12);
 
+      doc.setFont('helvetica', 'bold')
+      this.lastY = this.lastY + 8;
+      doc.text('Aceita viajar pela empresa: ', 22, this.lastY)
+      doc.setFont('helvetica', 'normal')
+      doc.text(this.viajarEmpresa === 'nao' ? 'Não' : capitalize(this.viajarEmpresa), 78, this.lastY)
+
+      doc.setFont('helvetica', 'bold')
+      this.lastY = this.lastY + 5;
+      doc.text('Considera trabalhar em outra cidade: ', 22, this.lastY)
+      doc.setFont('helvetica', 'normal')
+      doc.text(this.trabalharOutraCidadeEmpresa === 'nao' ? 'Não' :capitalize(this.trabalharOutraCidadeEmpresa), 98, this.lastY)
+
       if(this.informacoesComplementares){
         this.lastY = this.lastY + 8;
         doc.setFont('helvetica', 'normal')
-        doc.text(this.informacoesComplementares, 22, this.lastY)
+        doc.text(this.informacoesComplementares, 22, this.lastY, {maxWidth: 170})
       }
 
       const pdfOutput = doc.output ("arraybuffer");
 
       if(!Platform.is.cordova){
-        doc.save('teste.pdf');
+        doc.save(`Curriculo ${this.nome}.pdf`);
       }else {
         window.resolveLocalFileSystemURL ('file:///storage/emulated/0/Download', successCallback, errorCallback)
 
@@ -683,6 +709,7 @@ export default defineComponent({
           alert ("ERROR: " + error.code)
         }
       }
+       doc = new jsPDF ("p", "mm", "a4");
     },
   },
 
@@ -692,20 +719,20 @@ export default defineComponent({
       this.optionsPaisLocal.push({label: pais.label, value: pais.code})
     })
 
-    this.itensMenu.forEach(menuItem =>{
-      menuItem.fields.forEach(item =>{
-        this.$watch(item.field, (newQuestion) => {
-          newQuestion.label ? item.status = newQuestion.label.length > 0 : item.status = newQuestion.length > 0;
-        })
-      })
+    this.itensMenu.forEach((menuItem, index) =>{
+        for(let i = 0; i < menuItem.fields.length; i++){
+          // menuItem.fields[i].status ? this.total = this.total - 1 : this.total = this.total + 1;
+          this.$watch(menuItem.fields[i].field, (newQuestion) => {
+            newQuestion.label ? menuItem.fields[i].status = newQuestion.label.length > 0 : menuItem.fields[i].status = newQuestion.length > 0;
+          })
+        }
     })
-
   },
 
   data(){
     const step = 1;
-    const nome = 'Vini';
-    const dataNascimento = '';
+    const nome = 'Vinicius da Silva Fortes';
+    const dataNascimento = '13/11/2000';
     const estadoCivil = 'Solteiro(a)';
     const sexo = 'Masculino'
     const optionsSexo = ['Masculino', 'Feminino'];
@@ -720,23 +747,23 @@ export default defineComponent({
     const optionsPaisLocal = [{label: null, value: null}]
     const estadoLocal = {label: null, value: null};
     const optionsEstadoLocal = [{label: null, value: null}];
-    const cidadeLocal = '';
+    const cidadeLocal = 'Juiz de Fora';
     const optionsCidadeLocal = [];
     const filterCidadeLocalidade = ref(optionsCidadeLocal);
-    const bairroLocal = '';
-    const endereco = '';
+    const bairroLocal = 'Benfica';
+    const endereco = 'Rua Henrique Dias n 700';
     const leftDrawerOpen = null;
     const toggleLeftDrawer = null;
     const showEditCursoModal = {view: false, index: null};
     const showEditEmpresaModal = {view: false, index: null};
-    const nivelEscolaridade = '';
+    const nivelEscolaridade = 'Formação Superior Incompleta';
     const optionsNivelEscolaridade = ['Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 'Ensino Médio Completo', 'Formação Superior Incompleta', 'Formação Superior Completa', 'Pós-graduação no nível Especialização', 'Pós-graduação no nível Mestrado', 'Pós-graduação no nível Doutorado'];
     let cursosObjs = [];
     let empresasObj = [];
-    const cargoDesejado = '';
-    const areaInteresse = '';
+    const cargoDesejado = 'Desenvolvedor';
+    const areaInteresse = 'T.I';
     const pretensaoSalarial = '';
-    const informacoesComplementares = '';
+    const informacoesComplementares = 'dkjdnjd fjkhjfhfjhfjk fjfhkjfkjfjfokljf fjkfjfjkhfjhf fkjfjhfkjfkjf fjifkjifjhikfjkifjkf fjijfkijfkijfkfj fjksjkokljfkjhfsf snjhgfjhskfjfs sjhjfshjfhjfs sfnhjhfnsjfsnjkfs fhsfjhfsjnf fkjsfjhfsjksf fsmnsfjnjfs fsmnfsj f fsuf bfsjf hsfb sfnmsff sfjhufsf sb fsh fsnhf ssjhfbjhf fsjhfs nf syhffsh fshbfjfnjfs sfjfh sfmnfbhfnbfs f djhdhjdkid dkdjkdjkdlkd djkjddhjdhjd dmkdjkdjdhdjhd dkdhdjhdjhd dnjdhdhd dhjddjhdjdh djnjkdhjdhjdhd khdjhdjhdjd dmnmdnjdhjdndjnsakjko skjdkjhdkj djdjkdjkdjd djdkdjkdjkdklkd ddjhjkdjdk kdjkdjdkjhjkshud kdjhdjkhdhj jchchijcch hxxjkchchc cjoxkxouicihcin xhxughxx xhxhjxhxjhx xjhxhxjkjcjhckjuch xchgjxhxj djkidhdjn dnkdjkjdkd dkijdkijdkjd dmnkjdjdkd mkdjkdjkdjdj dnmdnjkdn dkdjdkd dnmdkjndkmd dndkjjndkdnmkd dnmdkjdkij';
     const controleDados = 0;
     const viajarEmpresa = 'nao';
     const trabalharOutraCidade = 'nao';
@@ -785,6 +812,7 @@ export default defineComponent({
       viajarEmpresa: viajarEmpresa,
       trabalharOutraCidadeEmpresa: trabalharOutraCidade,
       itensMenu: itensMenu,
+      total: 17,
       lastY: 0,
       moneyFormatForDirective: {
         decimal: ',',
