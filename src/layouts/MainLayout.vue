@@ -61,15 +61,14 @@
           <q-form
             @submit="nextStep">
             <q-input
-              @update:model-value="progress"
               v-model="nome"
               class="q-pa-sm"
+              maxlength="80"
               :rules="[ val => val.length > 0|| 'Nome é obrigatório !' ]"
               label="Nome Completo">
             </q-input>
 
             <q-input
-              @update:model-value="progress"
               v-model="dataNascimento"
               class="q-pa-sm"
               mask="##/##/####"
@@ -109,6 +108,7 @@
                 <span style="font-size: 17px">{{ this.iso2FlagEmoji(paisNacionalidade.flag)}}</span>
               </template>
             </q-select>
+
             <q-stepper-navigation>
               <q-btn type="submit" color="green" label="Continuar" />
             </q-stepper-navigation>
@@ -129,7 +129,8 @@
             <q-input
               v-model="email"
               class="q-pa-sm"
-              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+              :rules="[val => !!val || 'Campo obrigatório',
+                        val => validEmail(val) || 'E-mail inválido']"
               label="E-mail">
             </q-input>
 
@@ -142,6 +143,7 @@
             <q-input
               v-model="celular"
               class="q-pa-sm"
+              mask="(##) #####-####"
               :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
               label="Celular">
             </q-input>
@@ -149,6 +151,7 @@
             <q-input
               v-model="cep"
               class="q-pa-sm"
+              mask="#####-###"
               :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
               label="CEP">
             </q-input>
@@ -175,8 +178,11 @@
 
             <q-select
               v-model="cidadeLocal"
-              :options="optionsCidadeLocal"
               class="q-pa-sm"
+              use-input
+              input-debounce="0"
+              :options="filtroCidadeOptions"
+              @filter="filterCidade"
               :disable="!estadoLocal.value"
               label="Cidade">
             </q-select>
@@ -406,8 +412,23 @@ export default defineComponent({
   },
 
   methods: {
-    progress(event){
-      event.length > 0 ? this.itensMenu[0].fields[0].status = true: this.itensMenu[0].fields[0].status = false;
+    filterCidade (val, update) {
+      update(() => {
+        if (val === '') {
+          this.filtroCidadeOptions = this.optionsCidadeLocal
+        }
+        else {
+          const needle = val.toLowerCase()
+          this.filtroCidadeOptions = this.optionsCidadeLocal.filter(
+            v => v.toLowerCase().indexOf(needle) > -1
+          )
+        }
+      })
+    },
+
+    validEmail(email){
+      const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(email);
     },
     editEmpresa(index){
       this.showEditEmpresaModal.view = true;
@@ -455,12 +476,16 @@ export default defineComponent({
     },
 
     selectCity(){
+      this.cidadeLocal = ''
+      this.optionsCidadeLocal = [];
       City.getCitiesOfState(countries.alpha3ToAlpha2(this.paisLocal.value), this.estadoLocal.value).forEach(cidade =>{
         this.optionsCidadeLocal.push(cidade.name)
       })
     },
 
     selectState(){
+      this.estadoLocal = '';
+      this.optionsEstadoLocal = [];
       State.getStatesOfCountry(countries.alpha3ToAlpha2(this.paisLocal.value)).forEach(estado =>{
         this.optionsEstadoLocal.push({label: estado.name, value: estado.isoCode})
       })
@@ -736,9 +761,14 @@ export default defineComponent({
 
     this.itensMenu.forEach((menuItem, index) =>{
         for(let i = 0; i < menuItem.fields.length; i++){
-          // menuItem.fields[i].status ? this.total = this.total - 1 : this.total = this.total + 1;
           this.$watch(menuItem.fields[i].field, (newQuestion) => {
-            newQuestion.label ? menuItem.fields[i].status = newQuestion.label.length > 0 : menuItem.fields[i].status = newQuestion.length > 0;
+            if(newQuestion){
+              if(newQuestion.label){
+                menuItem.fields[i].status = newQuestion.label.length > 0
+              }else{
+                menuItem.fields[i].status = newQuestion.length > 0;
+              }
+            }
           })
         }
     })
@@ -752,19 +782,18 @@ export default defineComponent({
     const sexo = 'Masculino'
     const optionsSexo = ['Masculino', 'Feminino'];
     const optionsEstadoCivil = ['Solteiro(a)', 'Casado(a)', 'Separado(a)', 'Divorciado(a)', 'Viúvo(a)'];
-    const paisNacionalidade = {label: null, value: null, flag: null, dialCode: null};
+    const paisNacionalidade = {label: '', value: '', flag: '', dialCode: ''};
     const optionsPaisNacionalidade = [];
     const email = 'vini@gmail.com';
     const telefone = '3299803383';
     const celular = '3299803383';
     const cep = '36090290';
-    const paisLocal = {label: null, value: null};
-    const optionsPaisLocal = [{label: null, value: null}]
-    const estadoLocal = {label: null, value: null};
-    const optionsEstadoLocal = [{label: null, value: null}];
-    const cidadeLocal = 'Juiz de Fora';
+    const paisLocal = {label: '', value: ''};
+    const optionsPaisLocal = [{label: '', value: ''}]
+    const estadoLocal = {label: '', value: ''};
+    const optionsEstadoLocal = [{label: '', value: ''}];
+    const cidadeLocal = '';
     const optionsCidadeLocal = [];
-    const filterCidadeLocalidade = ref(optionsCidadeLocal);
     const bairroLocal = 'Benfica';
     const endereco = 'Rua Henrique Dias n 700';
     const leftDrawerOpen = null;
@@ -783,6 +812,8 @@ export default defineComponent({
     const viajarEmpresa = 'nao';
     const trabalharOutraCidade = 'nao';
     const showFileDialog = false;
+    const filtroCidadeOptions = optionsCidadeLocal;
+    const filtroPaisOptions = optionsPaisLocal;
     const itensMenu = [
       {icon: 'person', label: 'Dados Pessoais', fields: [{label: 'Nome', status: false, field: 'nome'}, {label:'Data de Nascimento', status: false, field: 'dataNascimento'}, {label: 'País de Nascionalidade', status: false, field: 'paisNacionalidade'}]},
       {icon: 'contact_page', label: 'Informações de Contato', fields: [{label: 'E-mail', status: false, field: 'email'}, {label: 'Telefone', status: false, field: 'telefone'}, {label: 'Celular', status: false, field: 'celular'}, {label: 'CEP', status: false, field: 'cep'}, {label: 'País', status: false, field: 'paisLocal'},{label: 'Estado', status: false, field: 'estadoLocal'},{label: 'Cidade', status: false, field: 'cidadeLocal'},{label: 'Bairro', status: false, field: 'bairroLocal'}, {label: 'Endereço', status: false, field: 'endereco'},]},
@@ -808,7 +839,6 @@ export default defineComponent({
       estadoLocal: estadoLocal,
       optionsEstadoLocal: optionsEstadoLocal,
       cidadeLocal: cidadeLocal,
-      filterCidadeLocalidade: filterCidadeLocalidade,
       optionsCidadeLocal: optionsCidadeLocal,
       bairroLocal: bairroLocal,
       endereco: endereco,
@@ -829,6 +859,7 @@ export default defineComponent({
       trabalharOutraCidadeEmpresa: trabalharOutraCidade,
       itensMenu: itensMenu,
       showFileDialog: showFileDialog,
+      filtroCidadeOptions: filtroCidadeOptions,
       total: 17,
       lastY: 0,
       moneyFormatForDirective: {
