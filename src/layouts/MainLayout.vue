@@ -222,14 +222,15 @@
               <span style="font-weight: bold">Nenhum curso adicionado !</span>
             </div>
 
-            <q-list v-if="!showEditCursoModal.view || cursosObjs.length > 1" separator bordered class="q-ma-sm">
-              <q-item v-show="showEditCursoModal.index !== index || showEditCursoModal.view === false" v-for="(curso, index) in cursosObjs" class="flex row justify-between">
-                <div class="flex column">
+            <q-list v-if="!showEditCursoModal.view || cursosObjs.length > 1" separator bordered class="flex q-ma-sm">
+              <q-item v-show="showEditCursoModal.index !== index || showEditCursoModal.view === false" v-for="(curso, index) in cursosObjs" class="flex row">
+                <div style="flex: 1" class="flex column">
                   <span style="font-weight: bold">{{ curso.tipoCurso }}</span>
                   <span>{{ curso.nomeCurso }}, {{ curso.instituicao }}</span>
                   <span>({{ curso.dataCurso }}), {{ curso.situacaoCurso }}</span>
                 </div>
-                <q-btn @click="editCurso(index)" :disable="showEditCursoModal.view" flat size="12px" label="Editar Curso" icon="edit"/>
+                <q-btn v-if="$q.platform.is.cordova" style="flex: 0" @click="editCurso(index)" :disable="showEditCursoModal.view" flat size="10px" icon="edit"/>
+                <q-btn v-else @click="editCurso(index)" style="flex: 0" :disable="showEditCursoModal.view" flat size="12px" label="Editar Curso" icon="edit"/>
               </q-item>
             </q-list>
 
@@ -262,13 +263,14 @@
             </div>
 
             <q-list v-if="!showEditEmpresaModal.view || empresasObj.length > 1" separator bordered class="q-ma-sm">
-              <q-item v-show="showEditEmpresaModal.index !== index || showEditEmpresaModal.view === false" v-for="(empresa, index) in empresasObj" class="flex row justify-between">
-                <div class="flex column">
+              <q-item v-show="showEditEmpresaModal.index !== index || showEditEmpresaModal.view === false" v-for="(empresa, index) in empresasObj" class="flex row">
+                <div style="flex: 1" class="flex column">
                   <span style="font-weight: bold">{{ empresa.cargo }}</span>
                   <span>{{ empresa.nomeEmpresa }}, {{ empresa.descricao }}</span>
                   <span>{{ empresa.dataInicio }} - {{ empresa.dataFim === '' ? 'Até o momento' : empresa.dataFim }}</span>
                 </div>
-                <q-btn @click="editEmpresa(index)" :disable="showEditEmpresaModal.view" flat size="12px" label="Editar Curso" icon="edit"/>
+                <q-btn v-if="$q.platform.is.cordova" style="flex: 0" @click="editEmpresa(index)" :disable="showEditEmpresaModal.view" flat size="12px"  icon="edit"/>
+                <q-btn v-else style="flex: 0" @click="editEmpresa(index)" :disable="showEditEmpresaModal.view" flat size="12px" label="Editar Curso" icon="edit"/>
               </q-item>
             </q-list>
 
@@ -357,17 +359,25 @@
             </q-input>
 
             <q-stepper-navigation>
-              <q-btn @click="geratePDF" type="submit" color="green" label="Gerar PDF" />
+              <q-btn type="submit" color="green" label="Gerar PDF" />
               <q-btn flat @click="step = 5" color="green" label="Voltar" class="q-ml-sm" />
             </q-stepper-navigation>
           </q-form>
         </q-step>
       </q-stepper>
-      <div class="flex justify-center row">
-        <button v-if="$q.platform.is.cordova" onclick="window.plugins.socialsharing.share('Here is your PDF file', 'Your PDF','file:///storage/emulated/0/Download/log.pdf','file:///storage/emulated/0/Download/log.pdf')">Share PDF</button>
-        <q-btn v-if="$q.platform.is.cordova" @click="openPDF">Open PDF</q-btn>
-      </div>
     </q-page-container>
+    <q-dialog v-model="showFileDialog">
+      <q-card>
+        <q-card-section class="flex row items-center">
+          <q-icon size="md" color="positive" name="check"/>
+          <span class="q-ml-md text-bold text-positive">Currículo Salvo Com Sucesso !</span>
+        </q-card-section>
+        <q-card-actions vertical>
+          <q-btn v-if="$q.platform.is.cordova" onclick="window.plugins.socialsharing.share(`Currículo PDF`, 'Currículo PDF','file:///storage/emulated/0/Download/CurriculoPDF.pdf','file:///storage/emulated/0/Download/CurriculoPDF.pdf')" color="positive" icon="share" label="Compartilhar"></q-btn>
+          <q-btn v-if="$q.platform.is.cordova" @click="openPDF" color="primary" icon="visibility" label="Visualizar PDF"></q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-layout>
 </template>
 
@@ -381,8 +391,10 @@ import { Platform } from 'quasar'
 import Curso from "components/Curso";
 import Empresa from "components/Empresa";
 import {Money3Component} from "v-money3";
+import { useQuasar } from 'quasar'
 
 let doc = new jsPDF ("p", "mm", "a4");
+const $q = useQuasar()
 
 export default defineComponent({
   name: 'MainLayout',
@@ -438,7 +450,7 @@ export default defineComponent({
     },
 
     nextStep() {
-      // this.geratePDF();
+      this.step === 6 ? this.geratePDF() : null;
       this.step = this.step + 1;
     },
 
@@ -456,7 +468,7 @@ export default defineComponent({
 
     openPDF(){
       cordova.plugins.fileOpener2.open(
-        'file:///storage/emulated/0/Download/log.pdf',
+        'file:///storage/emulated/0/Download/CurriculoPDF.pdf',
         'application/pdf',
         {
           error : function(e) {
@@ -687,27 +699,30 @@ export default defineComponent({
       if(!Platform.is.cordova){
         doc.save(`Curriculo ${this.nome}.pdf`);
       }else {
-        window.resolveLocalFileSystemURL ('file:///storage/emulated/0/Download', successCallback, errorCallback)
+        return new Promise((resolve, reject) => {
+          window.resolveLocalFileSystemURL ('file:///storage/emulated/0/Download', successCallback, errorCallback)
 
-        function successCallback(fs) {
-          fs.getFile ('log.pdf', {create: true}, function (fileEntry) {
+          function successCallback(fs) {
+            fs.getFile (`CurriculoPDF.pdf`, {create: true}, function (fileEntry) {
 
-            fileEntry.createWriter (function (fileWriter) {
-              fileWriter.onwriteend = function (e) {
-                alert ('Write completed.' + fs.name);
-              };
+              fileEntry.createWriter (function (fileWriter) {
+                fileWriter.onwriteend = function (e) {
+                  resolve(1)
+                };
 
-              fileWriter.onerror = function (e) {
-                alert ('Write failed: ' + e.toString ());
-              };
-              fileWriter.write (pdfOutput);
+                fileWriter.onerror = function (e) {
+                };
+                fileWriter.write (pdfOutput);
+              }, errorCallback);
             }, errorCallback);
-          }, errorCallback);
-        }
+          }
 
-        function errorCallback(error) {
-          alert ("ERROR: " + error.code)
-        }
+          function errorCallback(error) {
+          }
+        }).then(result => {
+          doc = new jsPDF ("p", "mm", "a4");
+          result === 1 ? this.showFileDialog = true: alert ('Houve problemas para gerar o PDF');
+        })
       }
        doc = new jsPDF ("p", "mm", "a4");
     },
@@ -767,6 +782,7 @@ export default defineComponent({
     const controleDados = 0;
     const viajarEmpresa = 'nao';
     const trabalharOutraCidade = 'nao';
+    const showFileDialog = false;
     const itensMenu = [
       {icon: 'person', label: 'Dados Pessoais', fields: [{label: 'Nome', status: false, field: 'nome'}, {label:'Data de Nascimento', status: false, field: 'dataNascimento'}, {label: 'País de Nascionalidade', status: false, field: 'paisNacionalidade'}]},
       {icon: 'contact_page', label: 'Informações de Contato', fields: [{label: 'E-mail', status: false, field: 'email'}, {label: 'Telefone', status: false, field: 'telefone'}, {label: 'Celular', status: false, field: 'celular'}, {label: 'CEP', status: false, field: 'cep'}, {label: 'País', status: false, field: 'paisLocal'},{label: 'Estado', status: false, field: 'estadoLocal'},{label: 'Cidade', status: false, field: 'cidadeLocal'},{label: 'Bairro', status: false, field: 'bairroLocal'}, {label: 'Endereço', status: false, field: 'endereco'},]},
@@ -812,6 +828,7 @@ export default defineComponent({
       viajarEmpresa: viajarEmpresa,
       trabalharOutraCidadeEmpresa: trabalharOutraCidade,
       itensMenu: itensMenu,
+      showFileDialog: showFileDialog,
       total: 17,
       lastY: 0,
       moneyFormatForDirective: {

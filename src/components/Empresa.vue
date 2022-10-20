@@ -49,7 +49,7 @@
         </q-input>
 
       </q-card-section>
-      <q-card-actions align="right">
+      <q-card-actions class="q-mt-lg" align="right">
         <q-btn @click="remove" flat icon="delete" label="Remover"></q-btn>
         <q-btn type="submit"  flat icon="save" label="Salvar"></q-btn>
       </q-card-actions>
