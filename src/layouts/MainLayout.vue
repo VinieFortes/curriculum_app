@@ -383,7 +383,7 @@
           <span class="q-ml-md text-bold text-positive">Currículo Salvo Com Sucesso !</span>
         </q-card-section>
         <q-card-actions vertical>
-          <q-btn v-if="$q.platform.is.cordova" onclick="window.plugins.socialsharing.share(`Currículo PDF`, 'Currículo PDF','file:///storage/emulated/0/Download/CurriculoPDF.pdf','file:///storage/emulated/0/Download/CurriculoPDF.pdf')" color="positive" icon="share" label="Compartilhar"></q-btn>
+          <q-btn v-if="$q.platform.is.cordova" @click="sharePDF" color="positive" icon="share" label="Compartilhar"></q-btn>
           <q-btn v-if="$q.platform.is.cordova" @click="openPDF" color="primary" icon="visibility" label="Visualizar PDF"></q-btn>
         </q-card-actions>
       </q-card>
@@ -404,6 +404,7 @@ import {Money3Component} from "v-money3";
 import { useQuasar } from 'quasar'
 
 let doc = new jsPDF ("p", "mm", "a4");
+let contador = 0;
 
 export default defineComponent({
   name: 'MainLayout',
@@ -415,6 +416,10 @@ export default defineComponent({
   },
 
   methods: {
+    sharePDF(){
+      window.plugins.socialsharing.share(`Currículo PDF`, 'Currículo PDF',`file:///storage/emulated/0/Documents/${this.fileName}.pdf`,`file:///storage/emulated/0/Documents/${this.fileName}.pdf`)
+    },
+
     filterCidade (val, update) {
       update(() => {
         if (val === '') {
@@ -478,7 +483,13 @@ export default defineComponent({
         else {
           permissions.requestPermission(permissions.WRITE_EXTERNAL_STORAGE, success, error);
           function error() {
-            alert('Para salavar seu PDF é necessario aceitar a permissão')
+            self.$q.notify({
+              message: 'Para salavar seu PDF é necessario aceitar a permissão !',
+              caption: 'Essa permissão é usada apenas para escrita e leitura do arquivo PDF :)',
+              icon: 'warning',
+              position: 'top',
+              color: 'negative'
+            })
           }
           function success( status ) {
             if( !status.hasPermission ){
@@ -498,8 +509,12 @@ export default defineComponent({
 
     nextStep() {
       if(this.step === 6){
-        if(this.permissaoWriteFile === false){
-          this.checkPermission();
+        if(this.$q.platform.is.cordova){
+          if(this.permissaoWriteFile === false){
+            this.checkPermission();
+          }else{
+            this.geratePDF()
+          }
         }else{
           this.geratePDF()
         }
@@ -525,7 +540,7 @@ export default defineComponent({
 
     openPDF(){
       cordova.plugins.fileOpener2.open(
-        'file:///storage/emulated/0/Download/CurriculoPDF.pdf',
+        `file:///storage/emulated/0/Documents/${this.fileName}.pdf`,
         'application/pdf',
         {
           error : function(e) {
@@ -755,37 +770,57 @@ export default defineComponent({
       if(!Platform.is.cordova){
         doc.save(`Curriculo ${this.nome}.pdf`);
       }else {
-        return new Promise((resolve, reject) => {
-          window.resolveLocalFileSystemURL ('file:///storage/emulated/0/Download', successCallback, errorCallback)
+        const self = this;
+        if(contador === 0){
+          self.fileName = `Curriculo ${self.nome}`;
+        }else{
+          self.fileName = self.fileName + Date.now();
+        }
 
-          function successCallback(fs) {
-            fs.getFile (`CurriculoPDF.pdf`, {create: true}, function (fileEntry) {
+        window.resolveLocalFileSystemURL ('file:///storage/emulated/0/Documents', successCallback, errorCallback)
 
-              fileEntry.createWriter (function (fileWriter) {
-                fileWriter.onwriteend = function (e) {
-                  resolve(1)
-                };
+        function successCallback(fs) {
+          fs.getFile (self.fileName + '.pdf', {create: true, exclusive: false}, function (fileEntry, dataObj) {
 
-                fileWriter.onerror = function (e) {
-                };
-                fileWriter.write (pdfOutput);
-              }, errorCallback);
+            fileEntry.createWriter (function (fileWriter) {
+              fileWriter.onwrite = function (e) {
+                self.showFileDialog = true;
+              };
+              fileWriter.onerror = function (e) {
+                contador = contador + 1;
+                self.$q.notify({
+                  message: 'Falha ao salvar seu PDF !',
+                  caption: 'Verifique se o App tem permissões de Escrita e Leitura em seu sistema e tente novamente',
+                  icon: 'warning',
+                  position: 'top',
+                  color: 'negative'
+                })
+              };
+              fileWriter.write (pdfOutput);
             }, errorCallback);
-          }
+          }, errorCallback);
+        }
 
-          function errorCallback(error) {
-          }
-        }).then(result => {
+        function errorCallback(error) {
+          alert('a' + error.code)
+          // self.$q.notify({
+          //   message: 'Falha ao salvar seu PDF !',
+          //   caption: 'Verifique se o App tem permissões de Escrita e Leitura em seu sistema',
+          //   icon: 'warning',
+          //   position: 'top',
+          //   color: 'negative'
+          // })
+        }
           doc = new jsPDF ("p", "mm", "a4");
-          result === 1 ? this.showFileDialog = true: alert ('Houve problemas para gerar o PDF');
-        })
       }
        doc = new jsPDF ("p", "mm", "a4");
     },
   },
 
   mounted() {
-    this.checkPermission();
+    if(this.$q.platform.is.cordova){
+      this.checkPermission();
+    }
 
     listaPaises.forEach(pais =>{
       this.optionsPaisNacionalidade.push({label: pais.label, value: pais.label, flag: pais.code, dialCode: pais.dialCode});
@@ -808,19 +843,19 @@ export default defineComponent({
   },
 
   data(){
-    const step = 6;
-    const nome = '';
-    const dataNascimento = '';
-    const estadoCivil = '';
-    const sexo = ''
+    const step = 1;
+    const nome = 'aaaa';
+    const dataNascimento = '13/12/2000';
+    const estadoCivil = 'Solteiro(a)';
+    const sexo = 'Masculino'
     const optionsSexo = ['Masculino', 'Feminino'];
     const optionsEstadoCivil = ['Solteiro(a)', 'Casado(a)', 'Separado(a)', 'Divorciado(a)', 'Viúvo(a)'];
     const paisNacionalidade = {label: '', value: '', flag: '', dialCode: ''};
     const optionsPaisNacionalidade = [];
-    const email = '';
-    const telefone = '';
-    const celular = '';
-    const cep = '';
+    const email = 'vini@gmail.com';
+    const telefone = '99999';
+    const celular = '32999';
+    const cep = '455555';
     const paisLocal = {label: '', value: ''};
     const optionsPaisLocal = [{label: '', value: ''}]
     const estadoLocal = {label: '', value: ''};
@@ -833,11 +868,11 @@ export default defineComponent({
     const toggleLeftDrawer = null;
     const showEditCursoModal = {view: false, index: null};
     const showEditEmpresaModal = {view: false, index: null};
-    const nivelEscolaridade = '';
+    const nivelEscolaridade = 'Ensino Fundamental Completo';
     const optionsNivelEscolaridade = ['Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 'Ensino Médio Completo', 'Formação Superior Incompleta', 'Formação Superior Completa', 'Pós-graduação no nível Especialização', 'Pós-graduação no nível Mestrado', 'Pós-graduação no nível Doutorado'];
     let cursosObjs = [];
     let empresasObj = [];
-    const cargoDesejado = '';
+    const cargoDesejado = 'dev';
     const areaInteresse = '';
     const pretensaoSalarial = '';
     const informacoesComplementares = '';
@@ -847,6 +882,7 @@ export default defineComponent({
     const showFileDialog = false;
     const filtroCidadeOptions = optionsCidadeLocal;
     const permissaoWriteFile = false;
+    const fileName = ''
     const itensMenu = [
       {icon: 'person', label: 'Dados Pessoais', fields: [{label: 'Nome', status: false, field: 'nome'}, {label:'Data de Nascimento', status: false, field: 'dataNascimento'}, {label: 'País de Nascionalidade', status: false, field: 'paisNacionalidade'}]},
       {icon: 'contact_page', label: 'Informações de Contato', fields: [{label: 'E-mail', status: false, field: 'email'}, {label: 'Telefone', status: false, field: 'telefone'}, {label: 'Celular', status: false, field: 'celular'}, {label: 'CEP', status: false, field: 'cep'}, {label: 'País', status: false, field: 'paisLocal'},{label: 'Estado', status: false, field: 'estadoLocal'},{label: 'Cidade', status: false, field: 'cidadeLocal'},{label: 'Bairro', status: false, field: 'bairroLocal'}, {label: 'Endereço', status: false, field: 'endereco'},]},
@@ -894,6 +930,7 @@ export default defineComponent({
       showFileDialog: showFileDialog,
       filtroCidadeOptions: filtroCidadeOptions,
       permissaoWriteFile: permissaoWriteFile,
+      fileName: fileName,
       total: 17,
       lastY: 0,
       moneyFormatForDirective: {
