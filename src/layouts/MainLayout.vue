@@ -453,7 +453,7 @@ export default defineComponent({
     },
 
     addEmpresa(){
-      this.empresasObj.push({nomeEmpresa: 'studioApp', cargo: 'Desenvolvedor Front-End', descricao: 'Trabalho com Vue.js', dataInicio: '12/2021', dataFim: ''});
+      this.empresasObj.push({nomeEmpresa: '', cargo: '', descricao: '', dataInicio: '', dataFim: ''});
       this.showEditEmpresaModal.view = true;
       this.showEditEmpresaModal.index = this.empresasObj.length - 1;
     },
@@ -468,7 +468,7 @@ export default defineComponent({
     },
 
     addCurso(){
-      this.cursosObjs.push({nomeCurso: 'Ciência da Computação', tipoCurso: 'Graduação', instituicao: 'UFJF - Universidade Federal de Juiz de Fora', situacaoCurso: 'Cursando', dataCurso: '01/2024'});
+      this.cursosObjs.push({nomeCurso: '', tipoCurso: '', instituicao: '', situacaoCurso: '', dataCurso: ''});
       this.showEditCursoModal.view = true;
       this.showEditCursoModal.index = this.cursosObjs.length - 1;
     },
@@ -802,14 +802,13 @@ export default defineComponent({
         }
 
         function errorCallback(error) {
-          alert('a' + error.code)
-          // self.$q.notify({
-          //   message: 'Falha ao salvar seu PDF !',
-          //   caption: 'Verifique se o App tem permissões de Escrita e Leitura em seu sistema',
-          //   icon: 'warning',
-          //   position: 'top',
-          //   color: 'negative'
-          // })
+          self.$q.notify({
+            message: 'Falha ao salvar seu PDF !',
+            caption: 'Verifique se o App tem permissões de Escrita e Leitura em seu sistema',
+            icon: 'warning',
+            position: 'top',
+            color: 'negative'
+          })
         }
           doc = new jsPDF ("p", "mm", "a4");
       }
@@ -844,18 +843,18 @@ export default defineComponent({
 
   data(){
     const step = 1;
-    const nome = 'aaaa';
-    const dataNascimento = '13/12/2000';
-    const estadoCivil = 'Solteiro(a)';
-    const sexo = 'Masculino'
+    const nome = '';
+    const dataNascimento = '';
+    const estadoCivil = '';
+    const sexo = ''
     const optionsSexo = ['Masculino', 'Feminino'];
     const optionsEstadoCivil = ['Solteiro(a)', 'Casado(a)', 'Separado(a)', 'Divorciado(a)', 'Viúvo(a)'];
     const paisNacionalidade = {label: '', value: '', flag: '', dialCode: ''};
     const optionsPaisNacionalidade = [];
-    const email = 'vini@gmail.com';
-    const telefone = '99999';
-    const celular = '32999';
-    const cep = '455555';
+    const email = '';
+    const telefone = '';
+    const celular = '';
+    const cep = '';
     const paisLocal = {label: '', value: ''};
     const optionsPaisLocal = [{label: '', value: ''}]
     const estadoLocal = {label: '', value: ''};
@@ -868,11 +867,11 @@ export default defineComponent({
     const toggleLeftDrawer = null;
     const showEditCursoModal = {view: false, index: null};
     const showEditEmpresaModal = {view: false, index: null};
-    const nivelEscolaridade = 'Ensino Fundamental Completo';
+    const nivelEscolaridade = '';
     const optionsNivelEscolaridade = ['Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 'Ensino Médio Completo', 'Formação Superior Incompleta', 'Formação Superior Completa', 'Pós-graduação no nível Especialização', 'Pós-graduação no nível Mestrado', 'Pós-graduação no nível Doutorado'];
     let cursosObjs = [];
     let empresasObj = [];
-    const cargoDesejado = 'dev';
+    const cargoDesejado = '';
     const areaInteresse = '';
     const pretensaoSalarial = '';
     const informacoesComplementares = '';
