@@ -94,8 +94,8 @@ module.exports = configure(function (ctx) {
         notify: { /* look at QuasarConfOptions from the API card */ }
       },
 
-      // iconSet: 'material-icons', // Quasar icon set
-      lang: 'pt-br', // Quasar language pack
+      iconSet: 'material-icons', // Quasar icon set
+      lang: 'pt-BR', // Quasar language pack
 
       // For special cases outside of where the auto-import strategy can have an impact
       // (like functional components as one of the examples),
