@@ -10,7 +10,7 @@
     "dev": "quasar dev",
     "dev:android": "quasar dev -m android --ide",
     "dev:browser": "quasar dev browser",
-    "build:android": "quasar build -m android --ide"
+    "build:android": "quasar build -m android --ide --webpack.mode=production"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",

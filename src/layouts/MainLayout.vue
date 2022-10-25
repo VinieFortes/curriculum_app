@@ -395,14 +395,15 @@
 import { defineComponent, ref } from 'vue'
 import jsPDF from "jspdf";
 import listaPaises from "assets/countriesList.json"
+import listaEstadosCidades from 'assets/StateCitiesList.json'
 const countries = require ("i18n-iso-countries");
-import { Country, State, City }  from 'country-state-city';
+let State = require('country-state-city').State;
+let Cities = require('country-state-city').City;
 import { Platform } from 'quasar'
 import Curso from "components/Curso";
 import Empresa from "components/Empresa";
 import {Money3Component} from "v-money3";
-import { useQuasar } from 'quasar'
-
+import {alpha3ToNumeric} from "i18n-iso-countries";
 let doc = new jsPDF ("p", "mm", "a4");
 let contador = 0;
 
@@ -525,16 +526,28 @@ export default defineComponent({
     selectCity(){
       this.cidadeLocal = ''
       this.optionsCidadeLocal = [];
-      City.getCitiesOfState(countries.alpha3ToAlpha2(this.paisLocal.value), this.estadoLocal.value).forEach(cidade =>{
-        this.optionsCidadeLocal.push(cidade.name)
+      listaEstadosCidades.forEach(pais =>{
+        if(pais.iso3 === this.paisLocal.value){
+          pais.states.forEach(estado =>{
+            if(estado.state_code === this.estadoLocal.value){
+              estado.cities.forEach(cidade =>{
+                this.optionsCidadeLocal.push(cidade.name)
+              })
+            }
+          })
+        }
       })
     },
 
     selectState(){
       this.estadoLocal = '';
       this.optionsEstadoLocal = [];
-      State.getStatesOfCountry(countries.alpha3ToAlpha2(this.paisLocal.value)).forEach(estado =>{
-        this.optionsEstadoLocal.push({label: estado.name, value: estado.isoCode})
+      listaEstadosCidades.forEach(pais =>{
+        if(pais.iso3 === this.paisLocal.value){
+          pais.states.forEach(estado =>{
+            this.optionsEstadoLocal.push({label: estado.name, value: estado.state_code})
+          })
+        }
       })
     },
 

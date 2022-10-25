@@ -1,10 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.vinie.curriculumapp" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="2" id="com.vinie.curriculumapp" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Gerador de Currículo</name>
     <description>A Quasar Project</description>
     <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
         Apache Cordova Team
     </author>
+    <hook src="scripts/remove-android-permissions.js" type="after_prepare" />
+    <preference name="FadeSplashScreenDuration" value="0" />
+    <preference name="AndroidWindowSplashScreenAnimatedIcon" value="../src/assets/logo_foreground.xml" />
+    <preference name="AndroidWindowSplashScreenBackground" value="#4caf50" />
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
     <icon density="mdpi" height="57" platform="android" src="../src/assets/icon.png" width="57" />
     <preference name="StatusBarOverlaysWebView" value="false" />
