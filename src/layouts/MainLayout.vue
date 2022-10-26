@@ -375,6 +375,7 @@
           </q-form>
         </q-step>
       </q-stepper>
+      <q-btn @click="geratePDF" v-if="step === 7" class="q-ma-sm" color="green" label="Gerar PDF" />
     </q-page-container>
     <q-dialog v-model="showFileDialog">
       <q-card>
