@@ -1,59 +1,43 @@
 <template>
-  <q-card bordered class="q-ma-sm">
+  <q-card bordered style="border-radius: 16px">
     <q-form
       @submit="onSubmit"
       class="q-gutter-md">
-      <q-card-section class="no-padding">
-        <q-input
-          v-model="empresaObj.nomeEmpresa"
-          class="q-pa-sm"
-          maxlength="50"
-          :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
-          label="Nome da empresa">
-        </q-input>
+      <q-card-section class="q-gutter-y-md q-pa-sm">
 
-        <q-input
-          v-model="empresaObj.cargo"
-          class="q-pa-sm"
-          maxlength="50"
-          :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
-          label="Ultimo cargo">
-        </q-input>
+        <div class="flex column">
+          <label for="nomeEmpresa">Nome da empresa *</label>
+          <input style="height: 35px; border-radius: 16px"  type="text" v-model="empresaObj.nomeEmpresa" maxlength="50" required placeholder="Ex: Goooogle LTDA" />
+        </div>
 
-        <q-input
-          v-model="empresaObj.descricao"
-          class="q-pa-sm"
-          type="textarea"
-          autogrow
-          maxlength="200"
-          :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
-          label="Resumo profissional">
-        </q-input>
+        <div class="flex column">
+          <label for="cargo">Ultimo cargo *</label>
+          <input style="height: 35px; border-radius: 16px"  type="text" v-model="empresaObj.cargo" maxlength="50" required placeholder="Ex: Diretor de projetos"/>
+        </div>
 
-        <q-input
-          v-model="empresaObj.dataInicio"
-          class="q-pa-sm"
-          mask="##/####"
-          :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
-          label="Mês/Ano de inicio">
-        </q-input>
+        <div class="flex column">
+          <label for="descricao">Resumo profissional *</label>
+          <textarea  type="text" style="height: 150px;  border-radius: 16px"  v-model="empresaObj.descricao" maxlength="200" required  />
+        </div>
 
-        <q-input
-          v-model="empresaObj.dataFim"
-          class="q-pa-sm"
-          mask="##/####"
-          label="Mês/Ano de Término"
-          bottom-slots>
+        <div class="flex column">
+          <label for="dataCurso">Mês/Ano de inicio *</label>
+          <input style="height: 35px; border-radius: 16px"  type="tel" v-model="empresaObj.dataInicio" @input="formatInput" required placeholder="Ex: 01/1980" />
+        </div>
 
-          <template v-slot:counter>
+        <div class="flex column">
+          <label for="dataFim">Mês/Ano de Término</label>
+          <input style="height: 35px; border-radius: 16px"  type="tel" v-model="empresaObj.dataFim" @input="formatInput2" placeholder="Ex: 01/2010" />
+
+          <div style="background-color: rgba(84, 83, 95, 0.1); border-radius: 16px" class="q-mt-sm q-pa-sm text-primary">
             <span style="font-size: 16px">Se este for o seu emprego atual deixe o término em branco.</span>
-          </template>
-        </q-input>
+          </div>
+        </div>
 
       </q-card-section>
-      <q-card-actions class="q-mt-lg" align="right">
-        <q-btn @click="remove" flat icon="delete" label="Remover"></q-btn>
-        <q-btn type="submit"  flat icon="save" label="Salvar"></q-btn>
+      <q-card-actions class="flex justify-around items-center">
+        <button style="height:30px;width:130px" class="text-negative" @click="remove" > <i class="fa fa-remove q-pr-sm"></i>Remover</button>
+        <button style="height:40px;width:130px"  type="submit"  > <i class="fa fa-save q-pr-sm"></i>Salvar</button>
       </q-card-actions>
     </q-form>
   </q-card>
@@ -70,6 +54,24 @@ export default {
   },
 
   methods: {
+
+    formatInput() {
+      let input = this.empresaObj.dataInicio;
+      input = input.replace(/\D/g, '').slice(0, 6); // Remove non-digits and limit to 6 characters
+      if (input.length >= 3) {
+        input = input.slice(0, 2) + '/' + input.slice(2);
+      }
+      this.empresaObj.dataInicio = input;
+    },
+
+    formatInput2() {
+      let input = this.empresaObj.dataFim;
+      input = input.replace(/\D/g, '').slice(0, 6); // Remove non-digits and limit to 6 characters
+      if (input.length >= 3) {
+        input = input.slice(0, 2) + '/' + input.slice(2);
+      }
+      this.empresaObj.dataFim = input;
+    },
 
     onSubmit () {
       this.salvar()

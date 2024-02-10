@@ -1,52 +1,43 @@
 <template>
-  <q-card bordered class="q-ma-sm">
+  <q-card bordered style="border-radius: 16px">
     <q-form
       @submit="onSubmit"
       class="q-gutter-md">
-        <q-card-section class="no-padding">
-            <q-input
-              v-model="cursoObj.nomeCurso"
-              class="q-pa-sm"
-              maxlength="50"
-              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
-              label="Nome do curso">
-            </q-input>
+        <q-card-section class="q-gutter-y-md q-pa-sm">
 
-            <q-select
-              v-model="cursoObj.tipoCurso"
-              :options="optionsTipoCurso"
-              class="q-pa-sm"
-              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
-              label="Tipo do Curso">
-            </q-select>
+          <div class="flex column">
+            <label for="nomeCurso">Nome do curso *</label>
+            <input style="height: 35px; border-radius: 16px" type="text" v-model="cursoObj.nomeCurso" maxlength="50" required placeholder="Ex: Ciência da computação" />
+          </div>
 
-            <q-input
-              v-model="cursoObj.instituicao"
-              class="q-pa-sm"
-              maxlength="50"
-              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
-              label="Instituição">
-            </q-input>
+          <div class="flex column">
+            <label for="tipoCurso">Tipo do Curso *</label>
+            <select style="height: 35px" required v-model="cursoObj.tipoCurso">
+              <option v-for="option in optionsTipoCurso" :value="option">{{option}}</option>
+            </select>
+          </div>
 
-            <q-select
-              v-model="cursoObj.situacaoCurso"
-              :options="optionsSituacaoCurso"
-              class="q-pa-sm"
-              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
-              label="Situação Atual">
-            </q-select>
+          <div class="flex column">
+            <label for="instituicao">Instituição *</label>
+            <input style="height: 35px; border-radius: 16px" type="text" v-model="cursoObj.instituicao" maxlength="50" required placeholder="Ex: Universidade Federal do Brasil" />
+          </div>
 
-            <q-input
-              v-model="cursoObj.dataCurso"
-              class="q-pa-sm"
-              mask="##/####"
-              :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
-              label="Mês/Ano de Conclusão">
-            </q-input>
+          <div class="flex column">
+            <label for="situacaoCurso">Situação Atual *</label>
+            <select style="height: 35px" required v-model="cursoObj.situacaoCurso">
+              <option v-for="option in optionsSituacaoCurso" :value="option">{{option}}</option>
+            </select>
+          </div>
+
+          <div class="flex column">
+            <label for="dataCurso">Mês/Ano de Conclusão *</label>
+            <input style="height: 35px; border-radius: 16px" type="tel" v-model="cursoObj.dataCurso" @input="formatInput" required placeholder="Ex: 01/2040" />
+          </div>
+
         </q-card-section>
-      <q-card-actions align="right">
-        <q-btn @click="remove" flat icon="delete" label="Remover"></q-btn>
-        <q-btn type="submit"  flat icon="save" label="Salvar"></q-btn>
+      <q-card-actions class="flex justify-around">
+        <button style="height:30px;width:130px" class="text-negative" @click="remove" > <i class="fa fa-remove q-pr-sm"></i>Remover</button>
+        <button style="height:40px;width:130px"  type="submit"  > <i class="fa fa-save q-pr-sm"></i>Salvar</button>
       </q-card-actions>
     </q-form>
   </q-card>
@@ -64,6 +55,15 @@ export default {
   },
 
   methods: {
+
+    formatInput() {
+      let input = this.cursoObj.dataCurso;
+      input = input.replace(/\D/g, '').slice(0, 6); // Remove non-digits and limit to 6 characters
+      if (input.length >= 3) {
+        input = input.slice(0, 2) + '/' + input.slice(2);
+      }
+      this.cursoObj.dataCurso = input;
+    },
 
     onSubmit () {
       this.salvar()
