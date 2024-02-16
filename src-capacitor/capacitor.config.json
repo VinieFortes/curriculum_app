@@ -1,0 +1,7 @@
+{
+  "appId": "com.vinie.curriculumapp",
+  "appName": "Gerador de Currículo PDF",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "www"
+}

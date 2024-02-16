@@ -5,34 +5,68 @@
       class="q-gutter-md">
       <q-card-section class="q-gutter-y-md q-pa-sm">
 
-        <div class="flex column">
-          <label for="nomeEmpresa">Nome da empresa *</label>
-          <input style="height: 35px; border-radius: 16px"  type="text" v-model="empresaObj.nomeEmpresa" maxlength="50" required placeholder="Ex: Goooogle LTDA" />
-        </div>
+        <q-input
+          v-model="empresaObj.nomeEmpresa"
+          color="primary"
+          bg-color="grey-2"
+          rounded
+          outlined
+          maxlength="50"
+          :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+          label="Nome da empresa *">
+        </q-input>
 
-        <div class="flex column">
-          <label for="cargo">Ultimo cargo *</label>
-          <input style="height: 35px; border-radius: 16px"  type="text" v-model="empresaObj.cargo" maxlength="50" required placeholder="Ex: Diretor de projetos"/>
-        </div>
+        <q-input
+          v-model="empresaObj.cargo"
+          color="primary"
+          bg-color="grey-2"
+          rounded
+          outlined
+          maxlength="50"
+          :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+          label="Último cargo *">
+        </q-input>
 
-        <div class="flex column">
-          <label for="descricao">Resumo profissional *</label>
-          <textarea  type="text" style="height: 150px;  border-radius: 16px"  v-model="empresaObj.descricao" maxlength="200" required  />
-        </div>
+        <q-input
+          v-model="empresaObj.descricao"
+          color="primary"
+          bg-color="grey-2"
+          rounded
+          outlined
+          type="textarea"
+          autogrow
+          maxlength="200"
+          :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+          label="Resumo profissional *">
+        </q-input>
 
-        <div class="flex column">
-          <label for="dataCurso">Mês/Ano de inicio *</label>
-          <input style="height: 35px; border-radius: 16px"  type="tel" v-model="empresaObj.dataInicio" @input="formatInput" required placeholder="Ex: 01/1980" />
-        </div>
+        <q-input
+          v-model="empresaObj.dataInicio"
+          color="primary"
+          bg-color="grey-2"
+          rounded
+          outlined
+          type="tel"
+          mask="##/####"
+          :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+          label="Mês/Ano de inicio *">
+        </q-input>
 
-        <div class="flex column">
-          <label for="dataFim">Mês/Ano de Término</label>
-          <input style="height: 35px; border-radius: 16px"  type="tel" v-model="empresaObj.dataFim" @input="formatInput2" placeholder="Ex: 01/2010" />
+        <q-input
+          v-model="empresaObj.dataFim"
+          color="primary"
+          bg-color="grey-2"
+          rounded
+          outlined
+          type="tel"
+          mask="##/####"
+          label="Mês/Ano de término *"
+          bottom-slots>
 
-          <div style="background-color: rgba(84, 83, 95, 0.1); border-radius: 16px" class="q-mt-sm q-pa-sm text-primary">
+          <template v-slot:counter>
             <span style="font-size: 16px">Se este for o seu emprego atual deixe o término em branco.</span>
-          </div>
-        </div>
+          </template>
+        </q-input>
 
       </q-card-section>
       <q-card-actions class="flex justify-around items-center">

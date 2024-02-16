@@ -5,34 +5,61 @@
       class="q-gutter-md">
         <q-card-section class="q-gutter-y-md q-pa-sm">
 
-          <div class="flex column">
-            <label for="nomeCurso">Nome do curso *</label>
-            <input style="height: 35px; border-radius: 16px" type="text" v-model="cursoObj.nomeCurso" maxlength="50" required placeholder="Ex: Ciência da computação" />
-          </div>
+          <q-input
+            v-model="cursoObj.nomeCurso"
+            color="primary"
+            bg-color="grey-2"
+            rounded
+            outlined
+            maxlength="50"
+            :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+            label="Nome do curso *">
+          </q-input>
 
-          <div class="flex column">
-            <label for="tipoCurso">Tipo do Curso *</label>
-            <select style="height: 35px" required v-model="cursoObj.tipoCurso">
-              <option v-for="option in optionsTipoCurso" :value="option">{{option}}</option>
-            </select>
-          </div>
+          <q-select
+            v-model="cursoObj.tipoCurso"
+            :options="optionsTipoCurso"
+            color="primary"
+            bg-color="grey-2"
+            rounded
+            outlined
+            :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+            label="Tipo do Curso *">
+          </q-select>
 
-          <div class="flex column">
-            <label for="instituicao">Instituição *</label>
-            <input style="height: 35px; border-radius: 16px" type="text" v-model="cursoObj.instituicao" maxlength="50" required placeholder="Ex: Universidade Federal do Brasil" />
-          </div>
+          <q-input
+            v-model="cursoObj.instituicao"
+            color="primary"
+            bg-color="grey-2"
+            rounded
+            outlined
+            maxlength="50"
+            :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+            label="Instituição *">
+          </q-input>
 
-          <div class="flex column">
-            <label for="situacaoCurso">Situação Atual *</label>
-            <select style="height: 35px" required v-model="cursoObj.situacaoCurso">
-              <option v-for="option in optionsSituacaoCurso" :value="option">{{option}}</option>
-            </select>
-          </div>
+          <q-select
+            v-model="cursoObj.situacaoCurso"
+            :options="optionsSituacaoCurso"
+            color="primary"
+            bg-color="grey-2"
+            rounded
+            outlined
+            :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+            label="Situação Atual *">
+          </q-select>
 
-          <div class="flex column">
-            <label for="dataCurso">Mês/Ano de Conclusão *</label>
-            <input style="height: 35px; border-radius: 16px" type="tel" v-model="cursoObj.dataCurso" @input="formatInput" required placeholder="Ex: 01/2040" />
-          </div>
+          <q-input
+            v-model="cursoObj.dataCurso"
+            color="primary"
+            bg-color="grey-2"
+            rounded
+            outlined
+            type="tel"
+            mask="##/####"
+            :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+            label="Mês/Ano de Conclusão *">
+          </q-input>
 
         </q-card-section>
       <q-card-actions class="flex justify-around">

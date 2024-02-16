@@ -71,18 +71,27 @@
             <q-form
               @submit="nextStep" class="q-gutter-y-md">
 
-              <div class="flex column">
-                <label for="name">Nome Completo *</label>
-                <input style="height: 35px; border-radius: 16px" type="text" v-model="nome" id="name" placeholder="Ex: João da Silva" name="name" required minlength="4" maxlength="60" size="10" />
-              </div>
+              <q-input
+                v-model="nome"
+                outlined
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                maxlength="80"
+                :rules="[ val => val.length > 0|| 'Nome é obrigatório !' ]"
+                label="Nome Completo *">
+              </q-input>
 
               <q-input
                 v-model="dataNascimento"
-                filled
-                style="height: 35px; margin-bottom: 32px"
+                outlined
+                color="primary"
+                bg-color="grey-2"
                 rounded
+                type="tel"
+                :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
                 mask="##/##/####"
-                label="Data de Nascimento">
+                label="Data de Nascimento *">
                 <template v-slot:append>
                   <q-icon name="event" color="blue" class="cursor-pointer">
                     <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
@@ -92,27 +101,40 @@
                 </template>
               </q-input>
 
-              <div class="flex column">
-                <label for="sexo">Sexo *</label>
-                <select  style="height: 35px" required v-model="sexo">
-                  <option v-for="option in optionsSexo" :value="option">{{option}}</option>
-                </select>
-              </div>
+              <q-select
+                v-model="sexo"
+                outlined
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                :options="optionsSexo"
+                :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+                label="Sexo *">
+              </q-select>
 
-              <div class="flex column">
-                <label for="estadoCivil">Estado Civil *</label>
-                <select  style="height: 35px" required v-model="estadoCivil">
-                  <option v-for="option in optionsEstadoCivil" :value="option">{{option}}</option>
-                </select>
-              </div>
+              <q-select
+                v-model="estadoCivil"
+                :options="optionsEstadoCivil"
+                outlined
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+                label="Estado Civil *">
+              </q-select>
 
-
-              <div class="flex column">
-                <label for="paisNacionalidade">País de Nacionalidade *</label>
-                <select  style="height: 35px" required v-model="paisNacionalidade">
-                  <option v-for="option in optionsPaisNacionalidade" :value="option">{{option.label}}</option>
-                </select>
-              </div>
+              <q-select
+                v-model="paisNacionalidade"
+                :options="optionsPaisNacionalidade"
+                outlined
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                label="País de Nacionalidade">
+                <template v-if="paisNacionalidade.flag" v-slot:prepend>
+                  <span style="font-size: 17px">{{ this.iso2FlagEmoji(paisNacionalidade.flag)}}</span>
+                </template>
+              </q-select>
 
               <q-stepper-navigation align="right">
                 <button style="height: 40px" type="submit">Continuar</button>
@@ -132,59 +154,113 @@
             <q-form
               @submit="nextStep" class="q-gutter-y-md">
 
-              <div class="flex column">
-                <label for="email">E-mail *</label>
-                <input style="height: 35px; border-radius: 16px" type="email" placeholder="Ex: joaodasilva@email.com" v-model="email" id="email" name="email" required  maxlength="60" size="10" />
-              </div>
+              <q-input
+                v-model="email"
+                outlined
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                type="email"
+                :rules="[val => !!val || 'Campo obrigatório',
+                        val => validEmail(val) || 'E-mail inválido']"
+                label="E-mail *">
+              </q-input>
 
-              <div class="flex column">
-                <label for="telefone">Telefone</label>
-                <input style="height: 35px; border-radius: 16px" type="tel" v-model="telefone" placeholder="Ex: 3222-2222" id="telefone" name="telefone" maxlength="15" size="10" />
-              </div>
+              <q-input
+                v-model="telefone"
+                outlined
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                type="tel"
+                maxlength="15"
+                class="q-pb-md"
+                label="Telefone">
+              </q-input>
 
-              <div class="flex column">
-                <label for="celular">Celular *</label>
-                <input style="height: 35px; border-radius: 16px" type="tel" v-model="celular" placeholder="Ex: (11) 0000-0000" maxlength="15" id="phone" name="phone" required/>
-              </div>
+              <q-input
+                v-model="celular"
+                outlined
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                type="tel"
+                mask="(##) #####-####"
+                :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+                label="Celular *">
+              </q-input>
 
-              <div class="flex column">
-                <label for="celular">CEP *</label>
-                <input style="height: 35px; border-radius: 16px" type="tel" v-model="cep" id="cep" name="cep" placeholder="Ex: 1234-567" required maxlength="9"/>
-              </div>
+              <q-input
+                v-model="cep"
+                mask="#####-###"
+                color="primary"
+                bg-color="grey-2"
+                type="tel"
+                rounded
+                outlined
+                :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+                label="CEP *">
+              </q-input>
 
-              <div class="flex column">
-                <label for="paisLocal">País</label>
-                <input style="height: 35px; border-radius: 16px" list="paises"  v-model="paisLocalSelected" @input="updatePaisSelecionado">
-                <datalist id="paises">
-                  <option v-for="option in optionsPaisLocal" :value="option.label">{{option.label}}</option>
-                </datalist>
-              </div>
+              <q-select
+                v-model="paisLocal"
+                :options="optionsPaisLocal"
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                outlined
+                label="País"
+                @update:model-value="selectState">
+                <template v-if="paisLocal.value" v-slot:prepend>
+                  <span style="font-size: 17px">{{ this.iso2FlagEmoji(paisLocal.value)}}</span>
+                </template>
+              </q-select>
 
-              <div class="flex column">
-                <label for="estadoLocal">Estado</label>
-                <input style="height: 35px; border-radius: 16px" :disabled="!paisLocal.label" list="estados" v-model="estadoLocalSelected" @input="updateEstadoSelecionado">
-                <datalist id="estados">
-                  <option v-for="option in optionsEstadoLocal" :value="option.label">{{option.label}}</option>
-                </datalist>
-              </div>
+              <q-select
+                v-model="estadoLocal"
+                :options="optionsEstadoLocal"
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                outlined
+                :disable="!paisLocal.value"
+                label="Estado"
+                @update:model-value="selectCity">
+              </q-select>
 
-              <div class="flex column">
-                <label for="cidadeLocal">Cidade</label>
-                <input style="height: 35px; border-radius: 16px" :disabled="!estadoLocal.label" list="browsers" name="cidadeLocal" id="cidadeLocal" v-model="cidadeLocal">
-                <datalist id="browsers">
-                  <option v-for="option in optionsCidadeLocal" :value="option">{{option.label}}</option>
-                </datalist>
-              </div>
+              <q-select
+                v-model="cidadeLocal"
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                outlined
+                use-input
+                input-debounce="0"
+                :options="filtroCidadeOptions"
+                @filter="filterCidade"
+                :disable="!estadoLocal.value"
+                label="Cidade">
+              </q-select>
 
-              <div class="flex column">
-                <label for="bairroLocal">Bairro</label>
-                <input style="height: 35px; border-radius: 16px" type="text" v-model="bairroLocal" placeholder="Ex: Centro" id="bairroLocal" name="bairroLocal" maxlength="120" size="10" />
-              </div>
+              <q-input
+                v-model="bairroLocal"
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                outlined
+                maxlength="50"
+                label="Bairro">
+              </q-input>
 
-              <div class="flex column">
-                <label for="endereco">Endereço</label>
-                <input style="height: 35px; border-radius: 16px" type="text" v-model="endereco" id="endereco" placeholder="Ex: Rua João da Silva, nº 100, ap 101 " name="endereco" maxlength="120" size="10" />
-              </div>
+              <q-input
+                v-model="endereco"
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                outlined
+                maxlength="100"
+                label="Endereço">
+              </q-input>
 
               <q-stepper-navigation class="flex row justify-between items-center">
                 <button style="height: 30px" class="text-negative" @click="step = 1">Voltar</button>
@@ -204,12 +280,16 @@
             <q-form
               @submit="nextStep" class="q-gutter-y-md">
 
-              <div class="flex column">
-                <label for="paisNacionalidade">Nível de escolaridade *</label>
-                <select style="height: 35px" required v-model="nivelEscolaridade">
-                  <option v-for="option in optionsNivelEscolaridade" :value="option">{{option}}</option>
-                </select>
-              </div>
+              <q-select
+                v-model="nivelEscolaridade"
+                :options="optionsNivelEscolaridade"
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                outlined
+                :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+                label="Nível de escolaridade *">
+              </q-select>
 
               <div v-if="cursosObjs.length === 0" class="flex q-pa-sm items-center justify-center bg-red-1 text-primary" style="border-radius: 16px">
                 <span style="font-weight: bold">Nenhum curso adicionado !</span>
@@ -223,7 +303,7 @@
                     <span>({{ curso.dataCurso }}), {{ curso.situacaoCurso }}</span>
                   </div>
                   <q-btn v-if="$q.platform.is.cordova" style="flex: 0" @click="editCurso(index)" :disable="showEditCursoModal.view" flat size="10px" icon="edit"/>
-                  <q-btn v-else @click="editCurso(index)" style="flex: 0" :disable="showEditCursoModal.view" flat size="12px" label="Editar Curso" icon="edit"/>
+                  <q-btn v-else @click="editCurso(index)" style="flex: 0" :disable="showEditCursoModal.view" flat size="12px" icon="edit"/>
                 </q-item>
               </q-list>
 
@@ -263,7 +343,7 @@
                     <span>{{ empresa.dataInicio }} - {{ empresa.dataFim === '' ? 'Até o momento' : empresa.dataFim }}</span>
                   </div>
                   <q-btn v-if="$q.platform.is.cordova" style="flex: 0" @click="editEmpresa(index)" :disable="showEditEmpresaModal.view" flat size="12px"  icon="edit"/>
-                  <q-btn v-else style="flex: 0" @click="editEmpresa(index)" :disable="showEditEmpresaModal.view" flat size="12px" label="Editar Curso" icon="edit"/>
+                  <q-btn v-else style="flex: 0" @click="editEmpresa(index)" :disable="showEditEmpresaModal.view" flat size="12px" icon="edit"/>
                 </q-item>
               </q-list>
 
@@ -291,29 +371,40 @@
             <q-form
               @submit="nextStep" class="q-gutter-y-md">
 
-              <div class="flex column">
-                <label for="cargoDesejado">Cargo desejado *</label>
-                <input style="height: 35px; border-radius: 16px" type="text" v-model="cargoDesejado" maxlength="40" required placeholder="Ex: CEO" />
-              </div>
+              <q-input
+                v-model="cargoDesejado"
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                outlined
+                maxlength="40"
+                :rules="[ val => val.length > 0|| 'Esse campo é obrigatório !' ]"
+                label="Cargo desejado *">
+              </q-input>
 
-              <div class="flex column">
-                <label for="cargoDesejado">Área de interesse</label>
-                <input style="height: 35px; border-radius: 16px" type="text" v-model="areaInteresse" maxlength="80" placeholder="T.I"/>
-              </div>
+              <q-input
+                v-model="areaInteresse"
+                color="primary"
+                bg-color="grey-2"
+                rounded
+                outlined
+                maxlength="80"
+                label="Área de interesse">
+              </q-input>
 
-              <div class="flex column">
-                <label for="pretensaoSalarial">Pretensão salarial</label>
-                <q-field
-                  outlined
-                  rounded
-                  v-model="pretensaoSalarial"
-                  prefix="R$"
-                >
-                  <template v-slot:control="{ id, floatingLabel, modelValue, emitValue }">
-                    <money3-component :id="id" class="q-field__input" :model-value="modelValue" @update:model-value="emitValue" v-bind="moneyFormatForDirective" v-show="floatingLabel" />
-                  </template>
-                </q-field>
-              </div>
+              <q-field
+                outlined
+                rounded
+                label="Pretensão salarial"
+                color="primary"
+                bg-color="grey-2"
+                v-model="pretensaoSalarial"
+                prefix="R$"
+              >
+                <template v-slot:control="{ id, floatingLabel, modelValue, emitValue }">
+                  <money3-component :id="id" class="q-field__input" :model-value="modelValue" @update:model-value="emitValue" v-bind="moneyFormatForDirective" v-show="floatingLabel" />
+                </template>
+              </q-field>
 
               <q-stepper-navigation class="flex row justify-between items-center">
                 <button style="height: 30px" class="text-negative" @click="step = 4">Voltar</button>
@@ -350,6 +441,8 @@
                 v-model="informacoesComplementares"
                 class="q-pa-sm"
                 type="textarea"
+                color="primary"
+                bg-color="grey-2"
                 maxlength="500"
                 label="Informações complementares">
               </q-input>
@@ -430,13 +523,27 @@ export default defineComponent({
   },
 
   methods: {
-    updatePaisSelecionado(){
-      this.paisLocal = this.optionsPaisLocal.find(pais => pais.label === this.paisLocalSelected);
-      this.selectState()
+    validEmail(email) {
+      const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(email);
     },
-    updateEstadoSelecionado(){
-      this.estadoLocal = this.optionsEstadoLocal.find(estado => estado.label === this.estadoLocalSelected);
-      this.selectCity()
+    iso2FlagEmoji(iso){
+      if(!iso) return null;
+      iso = countries.alpha3ToAlpha2(iso);
+      return String.fromCodePoint(...[...iso.toUpperCase()].map(char => char.charCodeAt(0) + 127397))
+    },
+    filterCidade (val, update) {
+      update(() => {
+        if (val === '') {
+          this.filtroCidadeOptions = this.optionsCidadeLocal
+        }
+        else {
+          const needle = val.toLowerCase()
+          this.filtroCidadeOptions = this.optionsCidadeLocal.filter(
+            v => v.toLowerCase().indexOf(needle) > -1
+          )
+        }
+      })
     },
     editEmpresa(index){
       this.showEditEmpresaModal.view = true;
@@ -483,6 +590,7 @@ export default defineComponent({
           this.geratePDF()
       }
       this.step = this.step + 1;
+      window.scrollTo({top: 0, behavior: 'smooth'});
     },
 
     selectCity(){
